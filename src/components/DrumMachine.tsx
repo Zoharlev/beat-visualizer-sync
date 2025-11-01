@@ -199,7 +199,7 @@ export const DrumMachine = () => {
   const loadCrashCymbalBuffer = async () => {
     if (audioContextRef.current && !crashCymbalBufferRef.current) {
       try {
-        const response = await fetch('/samples/open-hi-hats-2.wav');
+        const response = await fetch('/samples/hard-cymbal-crash_130bpm_C_major.wav');
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
         crashCymbalBufferRef.current = audioBuffer;
