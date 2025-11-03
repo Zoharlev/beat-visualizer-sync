@@ -669,6 +669,7 @@ export const useCSVPatternLoader = () => {
     
     // Try the advanced beat count format first (supports multiple instruments per step)
     const filesToTry = [
+      'sweet_child_o_mine_drums_16th_beats_1-2.csv',
       'sweet_child_o_mine_drums_16th_beats_1.csv',
       'sweet_child_o_mine_drums_16th_beats-10.csv',
       'sweet_child_o_mine_drums_16th_beats-9.csv',
