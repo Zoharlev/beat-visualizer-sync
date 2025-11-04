@@ -100,6 +100,19 @@ const drumPositions: {
   'Crash Cymbal': {
     y: 20,
     noteType: 'x'
+  },
+  // Ride cymbal (above staff) - X notehead
+  'Ride': {
+    y: 20,
+    noteType: 'x'
+  },
+  'ride': {
+    y: 20,
+    noteType: 'x'
+  },
+  'Ride Cymbal': {
+    y: 20,
+    noteType: 'x'
   }
 };
 export const DrumNotation = ({
@@ -191,7 +204,7 @@ export const DrumNotation = ({
               <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" strokeWidth="2" className="text-note-active" />
               <line x1="4" y1="16" x2="16" y2="4" stroke="currentColor" strokeWidth="2" className="text-note-active" />
             </svg>
-            <span>Closed HH / Crash</span>
+            <span>Closed HH / Crash / Ride</span>
           </div>
           <div className="flex items-center gap-2">
             <svg width="20" height="20" viewBox="0 0 20 20">
