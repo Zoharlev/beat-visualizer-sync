@@ -37,6 +37,7 @@ export const DrumMachine = () => {
       'Tom': new Array(initialLength).fill(false),
       'Ghost Note': new Array(initialLength).fill(false),
       'Crash Cymbal': new Array(initialLength).fill(false),
+      'Ride Cymbal': new Array(initialLength).fill(false),
       length: initialLength,
     };
   });
@@ -54,6 +55,7 @@ export const DrumMachine = () => {
   const tomBufferRef = useRef<AudioBuffer | null>(null);
   const ghostNoteBufferRef = useRef<AudioBuffer | null>(null);
   const crashCymbalBufferRef = useRef<AudioBuffer | null>(null);
+  const rideCymbalBufferRef = useRef<AudioBuffer | null>(null);
   const backingTrackRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
   
@@ -209,6 +211,20 @@ export const DrumMachine = () => {
     }
   };
 
+  // Load Ride Cymbal sample
+  const loadRideCymbalBuffer = async () => {
+    if (audioContextRef.current && !rideCymbalBufferRef.current) {
+      try {
+        const response = await fetch('/samples/ride-cymbal.wav');
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        rideCymbalBufferRef.current = audioBuffer;
+      } catch (error) {
+        console.error('Failed to load Ride Cymbal sample:', error);
+      }
+    }
+  };
+
   // Initialize audio context and load samples
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -219,6 +235,7 @@ export const DrumMachine = () => {
     loadTomBuffer();
     loadGhostNoteBuffer();
     loadCrashCymbalBuffer();
+    loadRideCymbalBuffer();
     
     // Initialize backing track
     backingTrackRef.current = new Audio('/samples/sweet_child_o_mine_backing_track.mp3');
@@ -259,6 +276,7 @@ export const DrumMachine = () => {
       'Tom': new Array(patternLength).fill(false),
       'Ghost Note': new Array(patternLength).fill(false),
       'Crash Cymbal': new Array(patternLength).fill(false),
+      'Ride Cymbal': new Array(patternLength).fill(false),
       length: patternLength,
     };
 
@@ -642,6 +660,42 @@ export const DrumMachine = () => {
         source.start(context.currentTime);
       } else {
         console.warn('Crash Cymbal sample not loaded yet');
+      }
+      
+    } else if (normalizedDrum.includes('ride') || normalizedDrum.includes('ridecymbal')) {
+      // Ride Cymbal - play ride cymbal sample
+      if (rideCymbalBufferRef.current) {
+        const source = context.createBufferSource();
+        source.buffer = rideCymbalBufferRef.current;
+        
+        // Add processing for ride cymbal
+        const gainNode = context.createGain();
+        const highpass = context.createBiquadFilter();
+        const presence = context.createBiquadFilter();
+        
+        // High-pass to clean up low-end
+        highpass.type = 'highpass';
+        highpass.frequency.setValueAtTime(5000, context.currentTime);
+        highpass.Q.setValueAtTime(0.7, context.currentTime);
+        
+        // Presence boost for bell tone
+        presence.type = 'peaking';
+        presence.frequency.setValueAtTime(8000, context.currentTime);
+        presence.Q.setValueAtTime(1.2, context.currentTime);
+        presence.gain.setValueAtTime(2, context.currentTime);
+        
+        // Signal chain
+        source.connect(highpass);
+        highpass.connect(presence);
+        presence.connect(gainNode);
+        gainNode.connect(context.destination);
+        
+        // Volume envelope for ride
+        gainNode.gain.setValueAtTime(0.6, context.currentTime);
+        
+        source.start(context.currentTime);
+      } else {
+        console.warn('Ride Cymbal sample not loaded yet');
       }
       
     } else {
