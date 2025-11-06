@@ -49,6 +49,22 @@ const drumLabels: {
     name: "Tom",
     symbol: "◆"
   },
+  "low tom": {
+    name: "Low Tom",
+    symbol: "◇"
+  },
+  "Low Tom": {
+    name: "Low Tom",
+    symbol: "◇"
+  },
+  "low tom-tom": {
+    name: "Low Tom",
+    symbol: "◇"
+  },
+  "Low Tom-tom": {
+    name: "Low Tom",
+    symbol: "◇"
+  },
   crash: {
     name: "Crash",
     symbol: "⊗"
