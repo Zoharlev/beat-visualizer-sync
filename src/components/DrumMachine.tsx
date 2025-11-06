@@ -35,6 +35,7 @@ export const DrumMachine = () => {
       'HH Closed': new Array(initialLength).fill(false),
       'HH Open': new Array(initialLength).fill(false),
       'Tom': new Array(initialLength).fill(false),
+      'Low Tom': new Array(initialLength).fill(false),
       'Ghost Note': new Array(initialLength).fill(false),
       'Crash Cymbal': new Array(initialLength).fill(false),
       'Ride Cymbal': new Array(initialLength).fill(false),
