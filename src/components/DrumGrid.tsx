@@ -88,6 +88,18 @@ const drumLabels: {
   "Ride Cymbal": {
     name: "Ride",
     symbol: "⊙"
+  },
+  "Ghost Note": {
+    name: "Ghost Note",
+    symbol: "⚬"
+  },
+  "ghost note": {
+    name: "Ghost Note",
+    symbol: "⚬"
+  },
+  ghost: {
+    name: "Ghost Note",
+    symbol: "⚬"
   }
 };
 export const DrumGrid = ({
