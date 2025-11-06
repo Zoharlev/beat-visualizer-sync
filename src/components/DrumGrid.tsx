@@ -269,7 +269,7 @@ export const DrumGrid = ({
 
         {/* Drum Rows */}
         {Object.entries(pattern).filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').sort(([keyA], [keyB]) => {
-          // Define bottom order: Snare (3rd from bottom), Ghost Note (2nd from bottom), Kick (bottom)
+          // Define bottom order: Low Tom (4th from bottom), Snare (3rd from bottom), Ghost Note (2nd from bottom), Kick (bottom)
           const keyALower = keyA.toLowerCase();
           const keyBLower = keyB.toLowerCase();
           
@@ -281,6 +281,9 @@ export const DrumGrid = ({
           
           if (keyALower === 'snare') return 1;
           if (keyBLower === 'snare') return -1;
+          
+          if (keyALower.includes('low tom')) return 1;
+          if (keyBLower.includes('low tom')) return -1;
           
           return 0;
         }).map(([drumKey, steps]) => {
