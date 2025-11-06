@@ -240,7 +240,12 @@ export const DrumGrid = ({
         </div>
 
         {/* Drum Rows */}
-        {Object.entries(pattern).filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(([drumKey, steps]) => {
+        {Object.entries(pattern).filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').sort(([keyA], [keyB]) => {
+          // Put Kick at the bottom
+          if (keyA.toLowerCase() === 'kick') return 1;
+          if (keyB.toLowerCase() === 'kick') return -1;
+          return 0;
+        }).map(([drumKey, steps]) => {
           if (!Array.isArray(steps)) return null;
           
           const drumInfo = drumLabels[drumKey] || { 
