@@ -20,7 +20,7 @@ interface DrumPattern {
 export const DrumMachine = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [currentView, setCurrentView] = useState(0);
+  const [scrollOffset, setScrollOffset] = useState(0);
   const [bpm, setBpm] = useState(123);
   const [metronomeEnabled, setMetronomeEnabled] = useState(true);
   const [backingTrackDuration, setBackingTrackDuration] = useState(120); // Default to 120 seconds
@@ -312,12 +312,14 @@ export const DrumMachine = () => {
       intervalRef.current = setInterval(() => {
         setCurrentStep((prev) => {
           const nextStep = (prev + 1) % displayPattern.length;
-          // Auto-scroll to next view if needed
-          const stepsPerView = patternLength;
-          const newView = Math.floor(nextStep / stepsPerView);
-          if (newView !== currentView) {
-            setCurrentView(newView);
+          
+          // Update scroll offset: playhead moves for steps 0-9, then stays at step 10
+          if (nextStep >= 10) {
+            setScrollOffset(nextStep - 9);
+          } else {
+            setScrollOffset(0);
           }
+          
           return nextStep;
         });
       }, stepDuration);
@@ -795,6 +797,7 @@ export const DrumMachine = () => {
   const reset = () => {
     setIsPlaying(false);
     setCurrentStep(0);
+    setScrollOffset(0);
     setTimeRemaining(120); // Reset timer to 2:00
     setCurrentSection(''); // Reset section
     
@@ -840,7 +843,7 @@ export const DrumMachine = () => {
   const changePatternLength = (newLength: 8 | 16) => {
     setPatternLength(newLength);
     setCurrentStep(0);
-    setCurrentView(0);
+    setScrollOffset(0);
     
     const newPattern: DrumPattern = { length: newLength };
     
@@ -899,7 +902,7 @@ export const DrumMachine = () => {
       
       // Reset playback state for the new pattern
       setCurrentStep(0);
-      setCurrentView(0); // Reset to first view
+      setScrollOffset(0);
       setCurrentSection(''); // Reset section
       
       // Analyze loaded pattern to show component info
@@ -958,7 +961,7 @@ export const DrumMachine = () => {
       setIsPlaying(false);
     }
     setCurrentStep(0);
-    setCurrentView(0);
+    setScrollOffset(0);
     
     toast({
       title: "Pattern Cleared",
@@ -1111,14 +1114,6 @@ export const DrumMachine = () => {
             </div>
           </div>
 
-          {/* Pattern Navigation */}
-          <PatternNavigation
-            currentView={currentView}
-            totalSteps={displayPattern.length}
-            stepsPerView={patternLength}
-            onViewChange={setCurrentView}
-          />
-
           {/* Display Mode Toggle */}
           <div className="flex items-center justify-center gap-2 mb-4">
             <Button
@@ -1146,8 +1141,8 @@ export const DrumMachine = () => {
             <DrumGrid
               pattern={displayPattern}
               currentStep={currentStep}
-              currentView={currentView}
-              stepsPerView={patternLength}
+              scrollOffset={scrollOffset}
+              visibleStepsCount={20}
               onStepToggle={toggleStep}
               onClearPattern={clearPattern}
               metronomeEnabled={metronomeEnabled}
@@ -1163,8 +1158,8 @@ export const DrumMachine = () => {
             <DrumNotation
               pattern={displayPattern}
               currentStep={currentStep}
-              currentView={currentView}
-              stepsPerView={patternLength}
+              scrollOffset={scrollOffset}
+              visibleStepsCount={20}
               onStepToggle={toggleStep}
               onClearPattern={clearPattern}
               metronomeEnabled={metronomeEnabled}

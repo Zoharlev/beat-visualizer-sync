@@ -9,8 +9,8 @@ interface DrumNotationProps {
     offsets?: number[];
   };
   currentStep: number;
-  currentView?: number;
-  stepsPerView?: number;
+  scrollOffset: number;
+  visibleStepsCount?: number;
   onStepToggle: (drum: string, step: number) => void;
   onClearPattern: () => void;
   metronomeEnabled: boolean;
@@ -118,8 +118,8 @@ const drumPositions: {
 export const DrumNotation = ({
   pattern,
   currentStep,
-  currentView = 0,
-  stepsPerView = 16,
+  scrollOffset = 0,
+  visibleStepsCount = 20,
   onStepToggle,
   onClearPattern,
   metronomeEnabled,
@@ -131,8 +131,8 @@ export const DrumNotation = ({
   onClearLoadedPattern,
   hasLoadedPattern
 }: DrumNotationProps) => {
-  const startStep = currentView * stepsPerView;
-  const endStep = Math.min(startStep + stepsPerView, pattern.length);
+  const startStep = Math.max(0, scrollOffset);
+  const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
   const visibleSteps = endStep - startStep;
 
   // Render a note at a specific position

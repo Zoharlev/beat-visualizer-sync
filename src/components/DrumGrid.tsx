@@ -10,8 +10,8 @@ interface DrumGridProps {
     offsets?: number[];
   };
   currentStep: number;
-  currentView?: number;
-  stepsPerView?: number;
+  scrollOffset: number;
+  visibleStepsCount?: number;
   onStepToggle: (drum: string, step: number) => void;
   onClearPattern: () => void;
   metronomeEnabled: boolean;
@@ -121,8 +121,8 @@ const drumLabels: {
 export const DrumGrid = ({
   pattern,
   currentStep,
-  currentView = 0,
-  stepsPerView = 16,
+  scrollOffset = 0,
+  visibleStepsCount = 20,
   onStepToggle,
   onClearPattern,
   metronomeEnabled,
@@ -134,10 +134,13 @@ export const DrumGrid = ({
   onClearLoadedPattern,
   hasLoadedPattern
 }: DrumGridProps) => {
-  // Calculate visible steps
-  const startStep = currentView * stepsPerView;
-  const endStep = Math.min(startStep + stepsPerView, pattern.length);
+  // Calculate visible window based on scroll offset
+  const startStep = Math.max(0, scrollOffset);
+  const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
   const visibleSteps = endStep - startStep;
+  
+  // Calculate playhead position (fixed at step 10 when scrolling)
+  const playheadStep = currentStep < 10 ? currentStep : 9;
   return <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-end gap-2">
@@ -192,16 +195,32 @@ export const DrumGrid = ({
       </div>
 
       {/* Grid Container */}
-      <div className="relative bg-card rounded-lg p-6 shadow-elevated">
-        {/* Playhead */}
-        {currentStep >= startStep && currentStep < endStep && (
-          <div className="absolute top-0 bottom-0 w-1 bg-playhead transition-all duration-75 z-10" style={{
-            left: `calc(1.5rem + 5rem + ((100% - (1.5rem + 1.5rem + 5rem)) * ${(currentStep - startStep) / visibleSteps}))`,
-            boxShadow: "0 0 20px hsl(var(--playhead) / 0.6)"
-          }} />
-        )}
+      <div className="relative bg-card rounded-lg p-6 shadow-elevated overflow-hidden">
+        {/* Step Position Indicator */}
+        <div className="text-xs text-muted-foreground text-center mb-2">
+          Step {currentStep + 1} / {pattern.length}
+        </div>
 
-        {/* Beat Numbers */}
+        {/* Playhead - Fixed position */}
+        <div 
+          className="absolute top-0 bottom-0 w-1 bg-playhead z-20 pointer-events-none" 
+          style={{
+            left: `calc(1.5rem + 5rem + ((100% - (1.5rem + 1.5rem + 5rem)) * ${playheadStep / visibleStepsCount}))`,
+            boxShadow: "0 0 20px hsl(var(--playhead) / 0.6)",
+            transition: currentStep < 10 ? "left 75ms ease-out" : "none"
+          }} 
+        />
+
+        {/* Scrolling Content Container */}
+        <div 
+          className="transition-transform duration-75 ease-linear"
+          style={{
+            transform: currentStep >= 10 
+              ? `translateX(-${((scrollOffset) / visibleStepsCount) * (100 - 88)}%)`
+              : 'translateX(0)'
+          }}
+        >
+          {/* Beat Numbers */}
         <div className="flex mb-4 flex-col gap-1">
           <div className="flex">
             <div className="w-20 text-xs text-muted-foreground/50">Step#</div>
@@ -344,19 +363,28 @@ export const DrumGrid = ({
           );
         })}
 
-        {/* Grid Enhancement */}
-        <div className="absolute inset-6 pointer-events-none">
-          {/* Vertical beat lines */}
-          {Array.from({ length: Math.ceil(visibleSteps / 2) }, (_, i) => (
-            <div 
-              key={i} 
-              className="absolute top-0 bottom-0 border-l border-primary/20" 
-              style={{
-                left: `${88 + i * (100 - 88 / visibleSteps) / (visibleSteps / 2)}%`
-              }} 
-            />
-          ))}
+          {/* Grid Enhancement */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Vertical beat lines */}
+            {Array.from({ length: Math.ceil(visibleSteps / 2) }, (_, i) => (
+              <div 
+                key={i} 
+                className="absolute top-0 bottom-0 border-l border-primary/20" 
+                style={{
+                  left: `${88 + i * (100 - 88 / visibleSteps) / (visibleSteps / 2)}%`
+                }} 
+              />
+            ))}
+          </div>
         </div>
+
+        {/* Fade edges for visual continuity */}
+        {scrollOffset > 0 && (
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-card to-transparent pointer-events-none z-10" />
+        )}
+        {endStep < pattern.length && (
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
+        )}
       </div>
 
       {/* Pattern Info */}
