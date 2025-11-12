@@ -34,85 +34,85 @@ const drumPositions: {
 } = {
   // Kick drum (bottom staff line) - filled notehead
   'Kick': {
-    y: 120,
+    y: 80,
     noteType: 'note'
   },
   'kick': {
-    y: 120,
+    y: 80,
     noteType: 'note'
   },
   // Tom-tom (between snare and kick) - filled notehead
   'Tom': {
-    y: 100,
+    y: 60,
     noteType: 'note'
   },
   'tom': {
-    y: 100,
+    y: 60,
     noteType: 'note'
   },
   'tom-tom': {
-    y: 100,
+    y: 60,
     noteType: 'note'
   },
   // Snare drum (middle staff line) - filled notehead
   'Snare': {
-    y: 80,
+    y: 40,
     noteType: 'note'
   },
   'snare': {
-    y: 80,
+    y: 40,
     noteType: 'note'
   },
   // Closed hi-hat (top staff line) - X notehead
   'HH Closed': {
-    y: 40,
+    y: 0,
     noteType: 'x'
   },
   'Hi-Hat': {
-    y: 40,
+    y: 0,
     noteType: 'x'
   },
   'hihat': {
-    y: 40,
+    y: 0,
     noteType: 'x'
   },
   // Open hi-hat (top staff line) - X notehead with circle above
   'HH Open': {
-    y: 40,
+    y: 0,
     noteType: 'open'
   },
   'Hi-Hat (Open)': {
-    y: 40,
+    y: 0,
     noteType: 'open'
   },
   'openhat': {
-    y: 40,
+    y: 0,
     noteType: 'open'
   },
   // Crash cymbal (above staff) - X notehead
   'Crash': {
-    y: 15,
+    y: -25,
     noteType: 'x'
   },
   'crash': {
-    y: 15,
+    y: -25,
     noteType: 'x'
   },
   'Crash Cymbal': {
-    y: 15,
+    y: -25,
     noteType: 'x'
   },
   // Ride cymbal (above staff) - X notehead
   'Ride': {
-    y: 15,
+    y: -25,
     noteType: 'x'
   },
   'ride': {
-    y: 15,
+    y: -25,
     noteType: 'x'
   },
   'Ride Cymbal': {
-    y: 15,
+    y: -25,
     noteType: 'x'
   }
 };
