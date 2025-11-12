@@ -134,38 +134,6 @@ export const DrumNotation = ({
   const startStep = Math.max(0, scrollOffset);
   const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
   const visibleSteps = endStep - startStep;
-
-  // Render a note at a specific position
-  const renderNote = (drum: string, stepIndex: number, x: number, y: number) => {
-    const drumInfo = drumPositions[drum];
-    if (!drumInfo) return null;
-    const isCurrentStep = stepIndex === currentStep;
-    if (drumInfo.noteType === 'x') {
-      // X-shaped notehead for closed hi-hat
-      return <g key={`${drum}-${stepIndex}`}>
-          <line x1={x - 6} y1={y - 6} x2={x + 6} y2={y + 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x - 6} y1={y + 6} x2={x + 6} y2={y - 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x} y1={y + 6} x2={x} y2={y - 30} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-        </g>;
-    } else if (drumInfo.noteType === 'open') {
-      // Open hi-hat: X notehead with small circle above (classic notation)
-      return <g key={`${drum}-${stepIndex}`}>
-          {/* X notehead */}
-          <line x1={x - 6} y1={y - 6} x2={x + 6} y2={y + 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x - 6} y1={y + 6} x2={x + 6} y2={y - 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          {/* Stem */}
-          <line x1={x} y1={y + 6} x2={x} y2={y - 30} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          {/* Small circle above to indicate "open" */}
-          <circle cx={x} cy={y - 18} r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-        </g>;
-    } else {
-      // Filled note for kick and closed hi-hat
-      return <g key={`${drum}-${stepIndex}`}>
-          <ellipse cx={x} cy={y} rx="7" ry="5" fill="currentColor" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x + 7} y1={y} x2={x + 7} y2={y - 30} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-        </g>;
-    }
-  };
   return <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-end gap-2">
@@ -218,15 +186,42 @@ export const DrumNotation = ({
 
         {/* Staff SVG */}
         <svg width="100%" height="200" className="overflow-visible" viewBox="0 0 1000 200">
+          {/* Define reusable note symbols */}
+          <defs>
+            {/* Filled note (for kick, snare, tom) */}
+            <symbol id="filledNote" viewBox="-10 -35 20 40">
+              <ellipse cx="0" cy="0" rx="7" ry="5" fill="currentColor" />
+              <line x1="7" y1="0" x2="7" y2="-30" stroke="currentColor" strokeWidth="2" />
+            </symbol>
+            
+            {/* X note (for closed hi-hat, crash, ride) */}
+            <symbol id="xNote" viewBox="-10 -35 20 40">
+              <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
+              <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
+              <line x1="0" y1="6" x2="0" y2="-30" stroke="currentColor" strokeWidth="2" />
+            </symbol>
+            
+            {/* Open note (for open hi-hat) */}
+            <symbol id="openNote" viewBox="-10 -35 20 40">
+              <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
+              <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
+              <line x1="0" y1="6" x2="0" y2="-30" stroke="currentColor" strokeWidth="2" />
+              <circle cx="0" cy="-18" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            </symbol>
+          </defs>
+
           {/* Staff lines */}
           {[0, 1, 2, 3, 4].map(line => <line key={line} x1="0" x2="1000" y1={40 + line * 20} y2={40 + line * 20} stroke="currentColor" strokeWidth="1" className="text-grid-line" />)}
 
-          {/* Bar lines */}
+          {/* Bar lines - positioned relative to visible steps */}
           {Array.from({
           length: Math.ceil(visibleSteps / 4) + 1
         }, (_, i) => {
-          const x = 40 + i * 4 * 920 / visibleSteps;
-          return <line key={i} x1={x} x2={x} y1={40} y2={120} stroke="currentColor" strokeWidth={i === 0 ? "3" : "1.5"} className="text-primary/40" />;
+          const stepOffset = startStep % 4; // Align bars with beat boundaries
+          const barStep = i * 4 - stepOffset;
+          if (barStep < 0 || barStep > visibleSteps) return null;
+          const x = 40 + barStep * 920 / visibleSteps;
+          return <line key={i} x1={x} x2={x} y1={40} y2={120} stroke="currentColor" strokeWidth={(startStep + barStep) % 16 === 0 ? "3" : "1.5"} className="text-primary/40" />;
         })}
 
           {/* Beat numbers */}
@@ -250,7 +245,7 @@ export const DrumNotation = ({
           filter: "drop-shadow(0 0 8px hsl(var(--playhead) / 0.6))"
         }} />}
 
-          {/* Notes */}
+          {/* Notes - using reusable symbols */}
           {Object.entries(pattern).filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(([drumKey, steps]) => {
           if (!Array.isArray(steps)) return null;
           const drumInfo = drumPositions[drumKey];
@@ -263,10 +258,18 @@ export const DrumNotation = ({
             if (!active) return null;
             const x = 60 + i * 920 / visibleSteps;
             const y = drumInfo.y;
+            const isCurrentStep = stepIndex === currentStep;
+            
+            // Choose the correct symbol based on note type
+            let symbolId = 'filledNote';
+            if (drumInfo.noteType === 'x') symbolId = 'xNote';
+            else if (drumInfo.noteType === 'open') symbolId = 'openNote';
+            
             return <g key={`${drumKey}-${stepIndex}`} onClick={() => onStepToggle(drumKey, stepIndex)} className="cursor-pointer">
                     {/* Clickable area */}
                     <rect x={x - 15} y={y - 15} width="30" height="30" fill="transparent" />
-                    {renderNote(drumKey, stepIndex, x, y)}
+                    {/* Use the predefined symbol */}
+                    <use href={`#${symbolId}`} x={x} y={y} className={cn("transition-colors", isCurrentStep ? "text-playhead" : "text-note-active")} />
                   </g>;
           });
         })}
