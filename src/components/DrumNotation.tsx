@@ -117,7 +117,7 @@ const drumPositions: {
   }
 };
 // Constants
-const STEP_WIDTH = 46;
+const STEP_WIDTH = 60;
 const STAFF_LEFT_MARGIN = 40;
 const BEATS_PER_BAR = 4;
 const BUFFER_STEPS = 2;
@@ -234,8 +234,8 @@ const NotesLayer = React.memo<{
           href={symbolId}
           x={note.x}
           y={note.y}
-          width="16"
-          height="32"
+          width="14"
+          height="28"
           className={cn(
             "transition-colors",
             isCurrentStep ? "text-playhead" : "text-note-active"
@@ -472,24 +472,24 @@ export const DrumNotation = React.memo(({
             {/* SVG Symbol Definitions */}
             <defs>
               {/* Filled note symbol */}
-              <symbol id="filledNote" viewBox="-10 -40 20 45">
-                <ellipse cx="0" cy="0" rx="7" ry="5" fill="currentColor" />
-                <line x1="7" y1="0" x2="7" y2="-30" stroke="currentColor" strokeWidth="2" />
+              <symbol id="filledNote" viewBox="-8 -32 16 36">
+                <ellipse cx="0" cy="0" rx="5.5" ry="4" fill="currentColor" />
+                <line x1="5.5" y1="0" x2="5.5" y2="-24" stroke="currentColor" strokeWidth="1.5" />
               </symbol>
               
               {/* X note symbol (for closed hi-hat, crash, ride) */}
-              <symbol id="xNote" viewBox="-10 -40 20 45">
-                <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
-                <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
-                <line x1="0" y1="6" x2="0" y2="-30" stroke="currentColor" strokeWidth="2" />
+              <symbol id="xNote" viewBox="-8 -32 16 36">
+                <line x1="-5" y1="-5" x2="5" y2="5" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="-5" y1="5" x2="5" y2="-5" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="0" y1="5" x2="0" y2="-24" stroke="currentColor" strokeWidth="1.5" />
               </symbol>
               
               {/* Open note symbol (X with circle above for open hi-hat) */}
-              <symbol id="openNote" viewBox="-10 -40 20 45">
-                <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
-                <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
-                <line x1="0" y1="6" x2="0" y2="-30" stroke="currentColor" strokeWidth="2" />
-                <circle cx="0" cy="-18" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <symbol id="openNote" viewBox="-8 -32 16 36">
+                <line x1="-5" y1="-5" x2="5" y2="5" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="-5" y1="5" x2="5" y2="-5" stroke="currentColor" strokeWidth="1.5" />
+                <line x1="0" y1="5" x2="0" y2="-24" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="0" cy="-14" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </symbol>
             </defs>
             
