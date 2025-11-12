@@ -190,22 +190,22 @@ export const DrumNotation = ({
           {/* Define reusable note symbols */}
           <defs>
             {/* Filled note (kick, snare, tom) */}
-            <symbol id="filledNote" viewBox="-4 -16 8 18">
-              <ellipse cx="0" cy="0" rx="3" ry="2" fill="currentColor" />
-              <line x1="3" y1="0" x2="3" y2="-14" stroke="currentColor" strokeWidth="1.2" />
+            <symbol id="filledNote" viewBox="-10 -40 20 45">
+              <ellipse cx="0" cy="0" rx="7.5" ry="5" fill="currentColor" />
+              <line x1="7.5" y1="0" x2="7.5" y2="-35" stroke="currentColor" strokeWidth="2" />
             </symbol>
             {/* X note (closed hi-hat, crash, ride) */}
-            <symbol id="xNote" viewBox="-4 -16 8 18">
-              <line x1="-2.5" y1="-2.5" x2="2.5" y2="2.5" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="-2.5" y1="2.5" x2="2.5" y2="-2.5" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="0" y1="2.5" x2="0" y2="-14" stroke="currentColor" strokeWidth="1.2" />
+            <symbol id="xNote" viewBox="-10 -40 20 45">
+              <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
+              <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
+              <line x1="0" y1="6" x2="0" y2="-35" stroke="currentColor" strokeWidth="2" />
             </symbol>
             {/* Open hi-hat note */}
-            <symbol id="openNote" viewBox="-4 -16 8 18">
-              <line x1="-2.5" y1="-2.5" x2="2.5" y2="2.5" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="-2.5" y1="2.5" x2="2.5" y2="-2.5" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="0" y1="2.5" x2="0" y2="-14" stroke="currentColor" strokeWidth="1.2" />
-              <circle cx="0" cy="-10" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
+            <symbol id="openNote" viewBox="-10 -40 20 45">
+              <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
+              <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
+              <line x1="0" y1="6" x2="0" y2="-35" stroke="currentColor" strokeWidth="2" />
+              <circle cx="0" cy="-25" r="5" fill="none" stroke="currentColor" strokeWidth="1.5" />
             </symbol>
           </defs>
 
