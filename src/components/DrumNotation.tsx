@@ -234,6 +234,8 @@ const NotesLayer = React.memo<{
           href={symbolId}
           x={note.x}
           y={note.y}
+          width="16"
+          height="32"
           className={cn(
             "transition-colors",
             isCurrentStep ? "text-playhead" : "text-note-active"
