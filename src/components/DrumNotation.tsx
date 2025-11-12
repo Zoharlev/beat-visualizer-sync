@@ -134,7 +134,7 @@ export const DrumNotation = ({
   const startStep = Math.max(0, scrollOffset);
   const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
   const visibleSteps = endStep - startStep;
-  const NOTE_SCALE = 0.5;
+  const NOTE_SCALE = 0.4;
   return <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-end gap-2">
