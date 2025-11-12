@@ -134,6 +134,7 @@ export const DrumNotation = ({
   const startStep = Math.max(0, scrollOffset);
   const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
   const visibleSteps = endStep - startStep;
+  const NOTE_SCALE = 0.65;
   return <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-end gap-2">
@@ -268,7 +269,7 @@ export const DrumNotation = ({
                     {/* Clickable area */}
                     <rect x={x - 10} y={y - 10} width="20" height="20" fill="transparent" />
                     {/* Use the symbol */}
-                    <use href={symbolId} x={x} y={y} className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
+                    <use href={symbolId} transform={`translate(${x} ${y}) scale(${NOTE_SCALE})`} className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
                   </g>;
           });
         })}
