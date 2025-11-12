@@ -205,7 +205,7 @@ export const DrumGrid = ({
         <div 
           className="absolute top-0 bottom-0 w-1 bg-playhead z-20 pointer-events-none" 
           style={{
-            left: `calc(1.5rem + 5rem + ((100% - (1.5rem + 1.5rem + 5rem)) * ${playheadStep / visibleStepsCount}))`,
+            left: `calc(5rem + 1.5rem + ((100% - 5rem - 3rem) * ${playheadStep / visibleStepsCount}))`,
             boxShadow: "0 0 20px hsl(var(--playhead) / 0.6)",
             transition: currentStep < 10 ? "left 75ms ease-out" : "none"
           }} 
@@ -216,7 +216,7 @@ export const DrumGrid = ({
           className="transition-transform duration-75 ease-linear"
           style={{
             transform: currentStep >= 10 
-              ? `translateX(-${((scrollOffset) / visibleStepsCount) * (100 - 88)}%)`
+              ? `translateX(calc(-1 * (100% - 5rem - 3rem) * ${scrollOffset / visibleStepsCount}))`
               : 'translateX(0)'
           }}
         >
