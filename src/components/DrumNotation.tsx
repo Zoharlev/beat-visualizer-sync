@@ -189,22 +189,22 @@ export const DrumNotation = ({
           {/* Define reusable note symbols */}
           <defs>
             {/* Filled note (kick, snare, tom) */}
-            <symbol id="filledNote" viewBox="-6 -22 12 25">
-              <ellipse cx="0" cy="0" rx="4.5" ry="3" fill="currentColor" />
-              <line x1="4.5" y1="0" x2="4.5" y2="-20" stroke="currentColor" strokeWidth="1.5" />
+            <symbol id="filledNote" viewBox="-4 -16 8 18">
+              <ellipse cx="0" cy="0" rx="3" ry="2" fill="currentColor" />
+              <line x1="3" y1="0" x2="3" y2="-14" stroke="currentColor" strokeWidth="1.2" />
             </symbol>
             {/* X note (closed hi-hat, crash, ride) */}
-            <symbol id="xNote" viewBox="-6 -22 12 25">
-              <line x1="-4" y1="-4" x2="4" y2="4" stroke="currentColor" strokeWidth="1.5" />
-              <line x1="-4" y1="4" x2="4" y2="-4" stroke="currentColor" strokeWidth="1.5" />
-              <line x1="0" y1="4" x2="0" y2="-20" stroke="currentColor" strokeWidth="1.5" />
+            <symbol id="xNote" viewBox="-4 -16 8 18">
+              <line x1="-2.5" y1="-2.5" x2="2.5" y2="2.5" stroke="currentColor" strokeWidth="1.2" />
+              <line x1="-2.5" y1="2.5" x2="2.5" y2="-2.5" stroke="currentColor" strokeWidth="1.2" />
+              <line x1="0" y1="2.5" x2="0" y2="-14" stroke="currentColor" strokeWidth="1.2" />
             </symbol>
             {/* Open hi-hat note */}
-            <symbol id="openNote" viewBox="-6 -22 12 25">
-              <line x1="-4" y1="-4" x2="4" y2="4" stroke="currentColor" strokeWidth="1.5" />
-              <line x1="-4" y1="4" x2="4" y2="-4" stroke="currentColor" strokeWidth="1.5" />
-              <line x1="0" y1="4" x2="0" y2="-20" stroke="currentColor" strokeWidth="1.5" />
-              <circle cx="0" cy="-13" r="3" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            <symbol id="openNote" viewBox="-4 -16 8 18">
+              <line x1="-2.5" y1="-2.5" x2="2.5" y2="2.5" stroke="currentColor" strokeWidth="1.2" />
+              <line x1="-2.5" y1="2.5" x2="2.5" y2="-2.5" stroke="currentColor" strokeWidth="1.2" />
+              <line x1="0" y1="2.5" x2="0" y2="-14" stroke="currentColor" strokeWidth="1.2" />
+              <circle cx="0" cy="-10" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
             </symbol>
           </defs>
 
@@ -266,7 +266,7 @@ export const DrumNotation = ({
             
             return <g key={`${drumKey}-${stepIndex}`} onClick={() => onStepToggle(drumKey, stepIndex)} className="cursor-pointer">
                     {/* Clickable area */}
-                    <rect x={x - 15} y={y - 15} width="30" height="30" fill="transparent" />
+                    <rect x={x - 10} y={y - 10} width="20" height="20" fill="transparent" />
                     {/* Use the symbol */}
                     <use href={symbolId} x={x} y={y} className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
                   </g>;
@@ -283,7 +283,7 @@ export const DrumNotation = ({
             if (!steps || steps[stepIndex]) return null;
             const x = 60 + i * 920 / visibleSteps;
             const y = drumInfo.y;
-            return <circle key={`empty-${drumKey}-${stepIndex}`} cx={x} cy={y} r="12" fill="transparent" className="cursor-pointer hover:fill-primary/10 transition-colors" onClick={() => onStepToggle(drumKey, stepIndex)} />;
+            return <circle key={`empty-${drumKey}-${stepIndex}`} cx={x} cy={y} r="8" fill="transparent" className="cursor-pointer hover:fill-primary/10 transition-colors" onClick={() => onStepToggle(drumKey, stepIndex)} />;
           });
         })}
         </svg>
