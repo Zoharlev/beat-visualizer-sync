@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Trash2, Upload, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import React, { useMemo } from "react";
 interface DrumNotationProps {
   pattern: {
     [key: string]: boolean[] | number | string[] | number[];
@@ -115,7 +116,189 @@ const drumPositions: {
     noteType: 'x'
   }
 };
-export const DrumNotation = ({
+// Constants
+const STEP_WIDTH = 46;
+const STAFF_LEFT_MARGIN = 40;
+const BEATS_PER_BAR = 4;
+const BUFFER_STEPS = 2;
+
+// Static staff lines component - never changes
+const StaticStaffLayer = React.memo(() => (
+  <>
+    {[0, 1, 2, 3, 4].map(line => (
+      <line 
+        key={line} 
+        x1="0" 
+        x2="2000" 
+        y1={40 + line * 20} 
+        y2={40 + line * 20} 
+        stroke="currentColor" 
+        strokeWidth="1" 
+        className="text-grid-line" 
+      />
+    ))}
+  </>
+));
+StaticStaffLayer.displayName = 'StaticStaffLayer';
+
+// Scrolling grid layer - bar lines and beat numbers
+const ScrollingGridLayer = React.memo<{
+  gridLines: Array<{ step: number; x: number; isFirstBar: boolean }>;
+  beatNumbers: Array<{ step: number; x: number; label: number }>;
+}>(({ gridLines, beatNumbers }) => (
+  <>
+    {/* Bar lines */}
+    {gridLines.map((line, i) => (
+      <line 
+        key={`bar-${i}`} 
+        x1={line.x} 
+        x2={line.x} 
+        y1={40} 
+        y2={120} 
+        stroke="currentColor" 
+        strokeWidth={line.isFirstBar ? "3" : "1.5"} 
+        className="text-primary/40" 
+      />
+    ))}
+    
+    {/* Beat numbers */}
+    {beatNumbers.map((num, i) => (
+      <text 
+        key={`beat-${i}`} 
+        x={num.x} 
+        y={25} 
+        textAnchor="middle" 
+        className="text-xs font-bold fill-primary"
+      >
+        {num.label}
+      </text>
+    ))}
+  </>
+), (prev, next) => 
+  prev.gridLines.length === next.gridLines.length && 
+  prev.beatNumbers.length === next.beatNumbers.length
+);
+ScrollingGridLayer.displayName = 'ScrollingGridLayer';
+
+// Playhead indicator - only updates on step change
+const PlayheadIndicator = React.memo<{
+  currentStep: number;
+  startStep: number;
+  endStep: number;
+  stepWidth: number;
+}>(({ currentStep, startStep, endStep, stepWidth }) => {
+  if (currentStep < startStep || currentStep >= endStep) return null;
+  
+  const x = STAFF_LEFT_MARGIN + 20 + (currentStep - startStep) * stepWidth;
+  
+  return (
+    <line 
+      x1={x} 
+      x2={x} 
+      y1={20} 
+      y2={140} 
+      stroke="currentColor" 
+      strokeWidth="3" 
+      className="text-playhead transition-transform duration-100" 
+      style={{
+        filter: "drop-shadow(0 0 8px hsl(var(--playhead) / 0.6))"
+      }} 
+    />
+  );
+}, (prev, next) => 
+  prev.currentStep === next.currentStep && 
+  prev.startStep === next.startStep && 
+  prev.endStep === next.endStep
+);
+PlayheadIndicator.displayName = 'PlayheadIndicator';
+
+// Notes layer - renders visible notes using symbols
+const NotesLayer = React.memo<{
+  visibleNotes: Array<{
+    drum: string;
+    step: number;
+    x: number;
+    y: number;
+    noteType: 'note' | 'x' | 'open';
+  }>;
+  currentStep: number;
+}>(({ visibleNotes, currentStep }) => (
+  <>
+    {visibleNotes.map((note) => {
+      const isCurrentStep = note.step === currentStep;
+      const symbolId = note.noteType === 'note' ? '#filledNote' : note.noteType === 'x' ? '#xNote' : '#openNote';
+      
+      return (
+        <use 
+          key={`${note.drum}-${note.step}`}
+          href={symbolId}
+          x={note.x}
+          y={note.y}
+          className={cn(
+            "transition-colors",
+            isCurrentStep ? "text-playhead" : "text-note-active"
+          )}
+        />
+      );
+    })}
+  </>
+), (prev, next) => 
+  prev.visibleNotes === next.visibleNotes && 
+  prev.currentStep === next.currentStep
+);
+NotesLayer.displayName = 'NotesLayer';
+
+// Interaction layer - clickable areas
+const InteractionLayer = React.memo<{
+  visibleNotes: Array<{
+    drum: string;
+    step: number;
+    x: number;
+    y: number;
+  }>;
+  emptySpaces: Array<{
+    drum: string;
+    step: number;
+    x: number;
+    y: number;
+  }>;
+  onStepToggle: (drum: string, step: number) => void;
+}>(({ visibleNotes, emptySpaces, onStepToggle }) => (
+  <>
+    {/* Clickable areas for existing notes */}
+    {visibleNotes.map((note) => (
+      <rect 
+        key={`click-${note.drum}-${note.step}`}
+        x={note.x - 15}
+        y={note.y - 15}
+        width="30"
+        height="30"
+        fill="transparent"
+        className="cursor-pointer"
+        onClick={() => onStepToggle(note.drum, note.step)}
+      />
+    ))}
+    
+    {/* Clickable areas for empty spaces */}
+    {emptySpaces.map((space) => (
+      <circle 
+        key={`empty-${space.drum}-${space.step}`}
+        cx={space.x}
+        cy={space.y}
+        r="12"
+        fill="transparent"
+        className="cursor-pointer hover:fill-primary/10 transition-colors"
+        onClick={() => onStepToggle(space.drum, space.step)}
+      />
+    ))}
+  </>
+), (prev, next) => 
+  prev.visibleNotes === next.visibleNotes && 
+  prev.emptySpaces === next.emptySpaces
+);
+InteractionLayer.displayName = 'InteractionLayer';
+
+export const DrumNotation = React.memo(({
   pattern,
   currentStep,
   scrollOffset = 0,
@@ -133,39 +316,104 @@ export const DrumNotation = ({
 }: DrumNotationProps) => {
   const startStep = Math.max(0, scrollOffset);
   const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
-  const visibleSteps = endStep - startStep;
 
-  // Render a note at a specific position
-  const renderNote = (drum: string, stepIndex: number, x: number, y: number) => {
-    const drumInfo = drumPositions[drum];
-    if (!drumInfo) return null;
-    const isCurrentStep = stepIndex === currentStep;
-    if (drumInfo.noteType === 'x') {
-      // X-shaped notehead for closed hi-hat
-      return <g key={`${drum}-${stepIndex}`}>
-          <line x1={x - 6} y1={y - 6} x2={x + 6} y2={y + 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x - 6} y1={y + 6} x2={x + 6} y2={y - 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x} y1={y + 6} x2={x} y2={y - 30} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-        </g>;
-    } else if (drumInfo.noteType === 'open') {
-      // Open hi-hat: X notehead with small circle above (classic notation)
-      return <g key={`${drum}-${stepIndex}`}>
-          {/* X notehead */}
-          <line x1={x - 6} y1={y - 6} x2={x + 6} y2={y + 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x - 6} y1={y + 6} x2={x + 6} y2={y - 6} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          {/* Stem */}
-          <line x1={x} y1={y + 6} x2={x} y2={y - 30} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          {/* Small circle above to indicate "open" */}
-          <circle cx={x} cy={y - 18} r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-        </g>;
-    } else {
-      // Filled note for kick and closed hi-hat
-      return <g key={`${drum}-${stepIndex}`}>
-          <ellipse cx={x} cy={y} rx="7" ry="5" fill="currentColor" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-          <line x1={x + 7} y1={y} x2={x + 7} y2={y - 30} stroke="currentColor" strokeWidth="2" className={cn("transition-all", isCurrentStep ? "text-playhead" : "text-note-active")} />
-        </g>;
+  // Calculate grid lines (bar lines) - positioned absolutely
+  const gridLines = useMemo(() => {
+    const lines = [];
+    const totalBars = Math.ceil(pattern.length / BEATS_PER_BAR);
+    
+    for (let bar = 0; bar <= totalBars; bar++) {
+      const absoluteStep = bar * BEATS_PER_BAR;
+      const absoluteX = STAFF_LEFT_MARGIN + absoluteStep * STEP_WIDTH;
+      lines.push({
+        step: absoluteStep,
+        x: absoluteX,
+        isFirstBar: bar === 0
+      });
     }
-  };
+    return lines;
+  }, [pattern.length]);
+
+  // Calculate beat numbers - positioned absolutely
+  const beatNumbers = useMemo(() => {
+    const numbers = [];
+    for (let step = 0; step < pattern.length; step++) {
+      const posInBar = step % 8;
+      if (posInBar % 2 === 0) {
+        const beatNum = Math.floor(posInBar / 2) + 1;
+        const absoluteX = STAFF_LEFT_MARGIN + 20 + step * STEP_WIDTH;
+        numbers.push({ step, x: absoluteX, label: beatNum });
+      }
+    }
+    return numbers;
+  }, [pattern.length]);
+
+  // Calculate visible notes with buffer
+  const visibleNotes = useMemo(() => {
+    const start = Math.max(0, scrollOffset - BUFFER_STEPS);
+    const end = Math.min(pattern.length, scrollOffset + visibleStepsCount + BUFFER_STEPS);
+    
+    const notes: Array<{
+      drum: string;
+      step: number;
+      x: number;
+      y: number;
+      noteType: 'note' | 'x' | 'open';
+    }> = [];
+    
+    Object.entries(pattern).forEach(([drumKey, steps]) => {
+      if (drumKey === 'length' || drumKey === 'subdivisions' || drumKey === 'offsets' || drumKey === 'sections') return;
+      if (!Array.isArray(steps) || !drumPositions[drumKey]) return;
+      
+      for (let step = start; step < end; step++) {
+        if (steps[step]) {
+          notes.push({
+            drum: drumKey,
+            step,
+            x: STAFF_LEFT_MARGIN + 20 + step * STEP_WIDTH,
+            y: drumPositions[drumKey].y,
+            noteType: drumPositions[drumKey].noteType
+          });
+        }
+      }
+    });
+    
+    return notes;
+  }, [pattern, scrollOffset, visibleStepsCount]);
+
+  // Calculate empty spaces for interaction
+  const emptySpaces = useMemo(() => {
+    const start = Math.max(0, scrollOffset - BUFFER_STEPS);
+    const end = Math.min(pattern.length, scrollOffset + visibleStepsCount + BUFFER_STEPS);
+    
+    const spaces: Array<{
+      drum: string;
+      step: number;
+      x: number;
+      y: number;
+    }> = [];
+    
+    Object.entries(drumPositions).forEach(([drumKey, drumInfo]) => {
+      const steps = pattern[drumKey] as boolean[] | undefined;
+      
+      for (let step = start; step < end; step++) {
+        if (!steps || !steps[step]) {
+          spaces.push({
+            drum: drumKey,
+            step,
+            x: STAFF_LEFT_MARGIN + 20 + step * STEP_WIDTH,
+            y: drumInfo.y
+          });
+        }
+      }
+    });
+    
+    return spaces;
+  }, [pattern, scrollOffset, visibleStepsCount]);
+
+  // Calculate scroll transform
+  const scrollTransform = `translateX(${-scrollOffset * STEP_WIDTH}px)`;
+
   return <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-end gap-2">
@@ -217,77 +465,81 @@ export const DrumNotation = ({
         </div>
 
         {/* Staff SVG */}
-        <svg width="100%" height="200" className="overflow-visible" viewBox="0 0 1000 200">
-          {/* Staff lines */}
-          {[0, 1, 2, 3, 4].map(line => <line key={line} x1="0" x2="1000" y1={40 + line * 20} y2={40 + line * 20} stroke="currentColor" strokeWidth="1" className="text-grid-line" />)}
+        <div className="relative overflow-hidden">
+          <svg width="100%" height="200" className="overflow-visible">
+            {/* SVG Symbol Definitions */}
+            <defs>
+              {/* Filled note symbol */}
+              <symbol id="filledNote" viewBox="-10 -40 20 45">
+                <ellipse cx="0" cy="0" rx="7" ry="5" fill="currentColor" />
+                <line x1="7" y1="0" x2="7" y2="-30" stroke="currentColor" strokeWidth="2" />
+              </symbol>
+              
+              {/* X note symbol (for closed hi-hat, crash, ride) */}
+              <symbol id="xNote" viewBox="-10 -40 20 45">
+                <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
+                <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
+                <line x1="0" y1="6" x2="0" y2="-30" stroke="currentColor" strokeWidth="2" />
+              </symbol>
+              
+              {/* Open note symbol (X with circle above for open hi-hat) */}
+              <symbol id="openNote" viewBox="-10 -40 20 45">
+                <line x1="-6" y1="-6" x2="6" y2="6" stroke="currentColor" strokeWidth="2" />
+                <line x1="-6" y1="6" x2="6" y2="-6" stroke="currentColor" strokeWidth="2" />
+                <line x1="0" y1="6" x2="0" y2="-30" stroke="currentColor" strokeWidth="2" />
+                <circle cx="0" cy="-18" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              </symbol>
+            </defs>
+            
+            {/* Layer 1: Static staff lines */}
+            <StaticStaffLayer />
+            
+            {/* Layer 2: Scrolling grid (bar lines + beat numbers) */}
+            <g style={{ transform: scrollTransform }}>
+              <ScrollingGridLayer 
+                gridLines={gridLines}
+                beatNumbers={beatNumbers}
+              />
+            </g>
+            
+            {/* Layer 3: Notes */}
+            <g style={{ transform: scrollTransform }}>
+              <NotesLayer 
+                visibleNotes={visibleNotes}
+                currentStep={currentStep}
+              />
+            </g>
+            
+            {/* Layer 4: Playhead (fixed position, doesn't scroll) */}
+            <PlayheadIndicator 
+              currentStep={currentStep}
+              startStep={startStep}
+              endStep={endStep}
+              stepWidth={STEP_WIDTH}
+            />
+            
+            {/* Layer 5: Interaction layer */}
+            <g style={{ transform: scrollTransform }}>
+              <InteractionLayer 
+                visibleNotes={visibleNotes}
+                emptySpaces={emptySpaces}
+                onStepToggle={onStepToggle}
+              />
+            </g>
+          </svg>
+        </div>
 
-          {/* Bar lines */}
-          {Array.from({
-          length: Math.ceil(visibleSteps / 4) + 1
-        }, (_, i) => {
-          const x = 40 + i * 4 * 920 / visibleSteps;
-          return <line key={i} x1={x} x2={x} y1={40} y2={120} stroke="currentColor" strokeWidth={i === 0 ? "3" : "1.5"} className="text-primary/40" />;
-        })}
-
-          {/* Beat numbers */}
-          {Array.from({
-          length: visibleSteps
-        }, (_, i) => {
-          const stepIndex = startStep + i;
-          const x = 60 + i * 920 / visibleSteps;
-          const posInBar = stepIndex % 8;
-          if (posInBar % 2 === 0) {
-            const beatNum = Math.floor(posInBar / 2) + 1;
-            return <text key={i} x={x} y={25} textAnchor="middle" className="text-xs font-bold fill-primary">
-                  {beatNum}
-                </text>;
-          }
-          return null;
-        })}
-
-          {/* Playhead */}
-          {currentStep >= startStep && currentStep < endStep && <line x1={60 + (currentStep - startStep) * 920 / visibleSteps} x2={60 + (currentStep - startStep) * 920 / visibleSteps} y1={20} y2={140} stroke="currentColor" strokeWidth="3" className="text-playhead" style={{
-          filter: "drop-shadow(0 0 8px hsl(var(--playhead) / 0.6))"
-        }} />}
-
-          {/* Notes */}
-          {Object.entries(pattern).filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(([drumKey, steps]) => {
-          if (!Array.isArray(steps)) return null;
-          const drumInfo = drumPositions[drumKey];
-          if (!drumInfo) return null;
-          return Array.from({
-            length: visibleSteps
-          }, (_, i) => {
-            const stepIndex = startStep + i;
-            const active = steps[stepIndex];
-            if (!active) return null;
-            const x = 60 + i * 920 / visibleSteps;
-            const y = drumInfo.y;
-            return <g key={`${drumKey}-${stepIndex}`} onClick={() => onStepToggle(drumKey, stepIndex)} className="cursor-pointer">
-                    {/* Clickable area */}
-                    <rect x={x - 15} y={y - 15} width="30" height="30" fill="transparent" />
-                    {renderNote(drumKey, stepIndex, x, y)}
-                  </g>;
-          });
-        })}
-
-          {/* Clickable areas for adding notes */}
-          {Object.entries(drumPositions).map(([drumKey, drumInfo]) => {
-          return Array.from({
-            length: visibleSteps
-          }, (_, i) => {
-            const stepIndex = startStep + i;
-            const steps = pattern[drumKey] as boolean[];
-            if (!steps || steps[stepIndex]) return null;
-            const x = 60 + i * 920 / visibleSteps;
-            const y = drumInfo.y;
-            return <circle key={`empty-${drumKey}-${stepIndex}`} cx={x} cy={y} r="12" fill="transparent" className="cursor-pointer hover:fill-primary/10 transition-colors" onClick={() => onStepToggle(drumKey, stepIndex)} />;
-          });
-        })}
-        </svg>
-
-        {/* Drum labels on the left */}
-        
       </div>
     </div>;
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison - only re-render if these change
+  return (
+    prevProps.currentStep === nextProps.currentStep &&
+    prevProps.scrollOffset === nextProps.scrollOffset &&
+    prevProps.pattern === nextProps.pattern &&
+    prevProps.isPlaying === nextProps.isPlaying &&
+    prevProps.hasLoadedPattern === nextProps.hasLoadedPattern &&
+    prevProps.isLoadingPattern === nextProps.isLoadingPattern
+  );
+});
+DrumNotation.displayName = 'DrumNotation';
