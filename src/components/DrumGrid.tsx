@@ -135,12 +135,13 @@ export const DrumGrid = ({
   hasLoadedPattern
 }: DrumGridProps) => {
   // Calculate visible window based on scroll offset
-  const startStep = Math.max(0, scrollOffset);
+  const maxStart = Math.max(0, pattern.length - visibleStepsCount);
+  const startStep = Math.min(Math.max(0, scrollOffset), maxStart);
   const endStep = Math.min(startStep + visibleStepsCount, pattern.length);
   const visibleSteps = endStep - startStep;
   
-  // Calculate playhead position (fixed at step 10 when scrolling)
-  const playheadStep = currentStep < 10 ? currentStep : 9;
+  // Calculate playhead position within the current visible window
+  const playheadIndex = Math.min(Math.max(currentStep - startStep, 0), Math.max(visibleSteps - 1, 0));
   return <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center justify-end gap-2">
@@ -205,20 +206,16 @@ export const DrumGrid = ({
         <div 
           className="absolute top-0 bottom-0 w-1 bg-playhead z-20 pointer-events-none" 
           style={{
-            left: `calc(5rem + 1.5rem + ((100% - 5rem - 3rem) * ${playheadStep / visibleStepsCount}))`,
+            left: `calc(5rem + 1.5rem + ((100% - 5rem - 3rem) * ${visibleSteps > 0 ? playheadIndex / visibleSteps : 0}))`,
             boxShadow: "0 0 20px hsl(var(--playhead) / 0.6)",
-            transition: currentStep < 10 ? "left 75ms ease-out" : "none"
+            transition: "left 75ms ease-out"
           }} 
         />
 
         {/* Scrolling Content Container */}
         <div 
           className="transition-transform duration-75 ease-linear"
-          style={{
-            transform: currentStep >= 10 
-              ? `translateX(calc(-1 * (100% - 5rem - 3rem) * ${scrollOffset / visibleStepsCount}))`
-              : 'translateX(0)'
-          }}
+          style={{ transform: 'none' }}
         >
           {/* Beat Numbers */}
         <div className="flex mb-4 flex-col gap-1">

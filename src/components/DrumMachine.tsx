@@ -313,12 +313,14 @@ export const DrumMachine = () => {
         setCurrentStep((prev) => {
           const nextStep = (prev + 1) % displayPattern.length;
           
-          // Update scroll offset: playhead moves for steps 0-9, then stays at step 10
+          // Update scroll offset: playhead moves for steps 0-9, then grid scrolls continuously
           if (nextStep >= 10) {
-            setScrollOffset(nextStep - 9);
+            setScrollOffset(nextStep - 9); // Shows steps (currentStep-9) through (currentStep+10)
           } else {
-            setScrollOffset(0);
+            setScrollOffset(0); // Show steps 0-19
           }
+          
+          console.log(`Current step: ${nextStep}, Scroll offset: ${nextStep >= 10 ? nextStep - 9 : 0}, Pattern length: ${displayPattern.length}`);
           
           return nextStep;
         });
