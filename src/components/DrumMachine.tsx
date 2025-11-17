@@ -972,8 +972,7 @@ export const DrumMachine = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
         {/* Pattern Instructions */}
         <div className="text-center mb-6">
           <p className="text-muted-foreground text-lg">
@@ -1375,7 +1374,6 @@ export const DrumMachine = () => {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 };
