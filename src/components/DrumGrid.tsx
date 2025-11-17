@@ -314,7 +314,7 @@ export const DrumGrid = ({
           };
           
           return (
-            <div key={drumKey} className="flex items-center mb-3 group">
+            <div key={drumKey} className="flex items-center mb-1 group">
               {/* Drum Label */}
               <div className="w-20 flex items-center gap-2 pr-4">
                 <span className="text-lg font-mono text-accent">{drumInfo.symbol}</span>
@@ -335,7 +335,7 @@ export const DrumGrid = ({
                         key={stepIndex} 
                         onClick={() => onStepToggle(drumKey, stepIndex)} 
                         className={cn(
-                          "flex-1 h-12 border-r border-grid-line last:border-r-0 transition-all duration-200",
+                          "flex-1 h-6 border-r border-grid-line last:border-r-0 transition-all duration-200",
                           "flex items-center justify-center group-hover:bg-muted/20",
                           stepIndex === currentStep && "bg-playhead/10",
                           stepIndex % 2 === 0 && "border-r-2 border-primary/30"
@@ -343,9 +343,9 @@ export const DrumGrid = ({
                       >
                         {active && (
                           <div className={cn(
-                            "w-6 h-6 rounded-full bg-gradient-to-br from-note-active to-accent",
+                            "w-3 h-3 rounded-full bg-gradient-to-br from-note-active to-accent",
                             "shadow-note transition-transform duration-200 hover:scale-110",
-                            "flex items-center justify-center text-xs font-bold text-background",
+                            "flex items-center justify-center text-[8px] font-bold text-background",
                             stepIndex === currentStep && active && "animate-bounce"
                           )}>
                             {drumInfo.symbol}
