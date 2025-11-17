@@ -314,7 +314,7 @@ export const DrumGrid = ({
           };
           
           return (
-            <div key={drumKey} className="flex items-center mb-1 group">
+            <div key={drumKey} className="flex items-center mb-px group">
               {/* Drum Label */}
               <div className="w-20 flex items-center gap-2 pr-4">
                 <span className="text-lg font-mono text-accent">{drumInfo.symbol}</span>
