@@ -43,8 +43,10 @@ export const DrumMachine = () => {
   const [backingTrackEnabled, setBackingTrackEnabled] = useState(true);
   const [drumSoundsMuted, setDrumSoundsMuted] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>('');
+  const [showControls, setShowControls] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const snareBufferRef = useRef<AudioBuffer | null>(null);
   const kickBufferRef = useRef<AudioBuffer | null>(null);
@@ -360,6 +362,41 @@ export const DrumMachine = () => {
       }
     }
   }, [currentStep, isPlaying, displayPattern, metronomeEnabled, currentSection]);
+
+  // Auto-hide controls on mobile landscape after 3 seconds of inactivity
+  useEffect(() => {
+    const resetControlsTimeout = () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      
+      setShowControls(true);
+      
+      // Only auto-hide on mobile landscape
+      if (window.innerHeight <= 500 && window.matchMedia('(orientation: landscape)').matches) {
+        controlsTimeoutRef.current = setTimeout(() => {
+          setShowControls(false);
+        }, 3000);
+      }
+    };
+
+    resetControlsTimeout();
+    
+    // Reset timeout on any user interaction
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, resetControlsTimeout);
+    });
+
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      events.forEach(event => {
+        document.removeEventListener(event, resetControlsTimeout);
+      });
+    };
+  }, []);
 
   // Countdown timer effect
   useEffect(() => {
@@ -1085,7 +1122,24 @@ export const DrumMachine = () => {
           {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
 
           {/* Bottom Toolbar */}
-          <div className="flex justify-between items-center mt-8 max-w-4xl mx-auto [@media(max-height:500px)_and_(orientation:landscape)]:fixed [@media(max-height:500px)_and_(orientation:landscape)]:bottom-0 [@media(max-height:500px)_and_(orientation:landscape)]:left-0 [@media(max-height:500px)_and_(orientation:landscape)]:right-0 [@media(max-height:500px)_and_(orientation:landscape)]:z-50 [@media(max-height:500px)_and_(orientation:landscape)]:bg-background/95 [@media(max-height:500px)_and_(orientation:landscape)]:backdrop-blur-sm [@media(max-height:500px)_and_(orientation:landscape)]:p-4 [@media(max-height:500px)_and_(orientation:landscape)]:mt-0 [@media(max-height:500px)_and_(orientation:landscape)]:shadow-lg">
+          <div className={cn(
+            "flex justify-between items-center mt-8 max-w-4xl mx-auto",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:fixed",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:bottom-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:left-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:right-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:z-50",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:bg-background/95",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:backdrop-blur-sm",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:p-4",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:mt-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:shadow-lg",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:transition-transform",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:duration-300",
+            showControls 
+              ? "[@media(max-height:500px)_and_(orientation:landscape)]:translate-y-0" 
+              : "[@media(max-height:500px)_and_(orientation:landscape)]:translate-y-full"
+          )}>
             {/* Left Side Controls */}
             <div className="flex items-center gap-4">
               {/* Section Indicator Chip */}
@@ -1217,6 +1271,17 @@ export const DrumMachine = () => {
               </Button>
             </div>
           </div>
+
+          {/* Show Controls Toggle Button - Only visible on mobile landscape when controls are hidden */}
+          {!showControls && (
+            <button
+              onClick={() => setShowControls(true)}
+              className="hidden [@media(max-height:500px)_and_(orientation:landscape)]:block fixed bottom-4 right-4 z-50 bg-primary/90 hover:bg-primary text-primary-foreground rounded-full p-3 shadow-lg animate-fade-in"
+              aria-label="Show controls"
+            >
+              <Settings className="h-5 w-5" />
+            </button>
+          )}
         </div>
     </div>;
 };
