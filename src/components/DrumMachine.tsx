@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useDrumListener } from "@/hooks/useDrumListener";
 import { useCSVPatternLoader } from "@/hooks/useCSVPatternLoader";
 import { cn } from "@/lib/utils";
-
 interface DrumPattern {
   [key: string]: boolean[] | number | string[] | number[];
   length: number;
@@ -16,7 +15,6 @@ interface DrumPattern {
   offsets?: number[];
   sections?: string[];
 }
-
 export const DrumMachine = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -39,13 +37,12 @@ export const DrumMachine = () => {
       'Ghost Note': new Array(initialLength).fill(false),
       'Crash Cymbal': new Array(initialLength).fill(false),
       'Ride Cymbal': new Array(initialLength).fill(false),
-      length: initialLength,
+      length: initialLength
     };
   });
   const [backingTrackEnabled, setBackingTrackEnabled] = useState(false);
   const [drumSoundsMuted, setDrumSoundsMuted] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>('');
-
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -58,8 +55,10 @@ export const DrumMachine = () => {
   const crashCymbalBufferRef = useRef<AudioBuffer | null>(null);
   const rideCymbalBufferRef = useRef<AudioBuffer | null>(null);
   const backingTrackRef = useRef<HTMLAudioElement | null>(null);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
+
   // Drum listener hook for microphone beat detection
   const {
     isListening,
@@ -71,8 +70,11 @@ export const DrumMachine = () => {
     stopListening,
     clearBeats
   } = useDrumListener();
-
-  const { loadPatternFromFile, isLoading: isLoadingPattern, error: csvError } = useCSVPatternLoader();
+  const {
+    loadPatternFromFile,
+    isLoading: isLoadingPattern,
+    error: csvError
+  } = useCSVPatternLoader();
   const [loadedPatternInfo, setLoadedPatternInfo] = useState<{
     componentsFound: string[];
     totalBeats: number;
@@ -88,7 +90,6 @@ export const DrumMachine = () => {
       });
     }
   }, [listenerError, toast]);
-
   const handleListenerToggle = async () => {
     if (isListening) {
       stopListening();
@@ -237,12 +238,12 @@ export const DrumMachine = () => {
     loadGhostNoteBuffer();
     loadCrashCymbalBuffer();
     loadRideCymbalBuffer();
-    
+
     // Initialize backing track
     backingTrackRef.current = new Audio('/samples/sweet_child_o_mine_backing_track.mp3');
     backingTrackRef.current.loop = true;
     backingTrackRef.current.volume = 0.3;
-    
+
     // Get backing track duration when metadata is loaded
     backingTrackRef.current.addEventListener('loadedmetadata', () => {
       if (backingTrackRef.current && !isNaN(backingTrackRef.current.duration)) {
@@ -251,7 +252,6 @@ export const DrumMachine = () => {
         setTimeRemaining(duration);
       }
     });
-    
     return () => {
       audioContextRef.current?.close();
       if (backingTrackRef.current) {
@@ -263,12 +263,11 @@ export const DrumMachine = () => {
 
   // Step timing based on BPM where 1 Beat = 4 Steps
   // At 120 BPM: each beat = 500ms, each step = 125ms
-  const stepDuration = (60 / bpm / 4) * 1000;
+  const stepDuration = 60 / bpm / 4 * 1000;
 
   // Convert detected beats to pattern grid positions when listening
   const detectedPattern = useMemo(() => {
     if (!isListening || detectedBeats.length === 0) return null;
-
     const newPattern: DrumPattern = {
       'Kick': new Array(patternLength).fill(false),
       'Snare': new Array(patternLength).fill(false),
@@ -278,54 +277,43 @@ export const DrumMachine = () => {
       'Ghost Note': new Array(patternLength).fill(false),
       'Crash Cymbal': new Array(patternLength).fill(false),
       'Ride Cymbal': new Array(patternLength).fill(false),
-      length: patternLength,
+      length: patternLength
     };
-
     const firstBeatTime = detectedBeats[0]?.timestamp || Date.now();
-    
     detectedBeats.forEach(beat => {
       const relativeTime = beat.timestamp - firstBeatTime;
       const stepPosition = Math.round(relativeTime / stepDuration) % patternLength;
-      
       if (stepPosition >= 0 && stepPosition < patternLength && beat.confidence > 0.6) {
         // Map detected beat types to instrument names
         let instrumentKey = '';
-        if (beat.type === 'kick') instrumentKey = 'Kick';
-        else if (beat.type === 'snare') instrumentKey = 'Snare';
-        else if (beat.type === 'hihat') instrumentKey = 'HH Closed';
-        else if (beat.type === 'openhat') instrumentKey = 'HH Open';
-        
+        if (beat.type === 'kick') instrumentKey = 'Kick';else if (beat.type === 'snare') instrumentKey = 'Snare';else if (beat.type === 'hihat') instrumentKey = 'HH Closed';else if (beat.type === 'openhat') instrumentKey = 'HH Open';
         if (instrumentKey && newPattern[instrumentKey]) {
           (newPattern[instrumentKey] as boolean[])[stepPosition] = true;
         }
       }
     });
-
     return newPattern;
   }, [detectedBeats, stepDuration, isListening, patternLength]);
 
   // Display pattern: use detected pattern when listening, otherwise use manual pattern
   const displayPattern = isListening && detectedPattern ? detectedPattern : pattern;
-
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {
-        setCurrentStep((prev) => {
+        setCurrentStep(prev => {
           const nextStep = (prev + 1) % displayPattern.length;
-          
+
           // Update scroll offset: playhead moves for steps 0-4, then grid scrolls continuously
           if (nextStep >= 5) {
             setScrollOffset(nextStep - 4); // Shows steps (currentStep-4) through (currentStep+15)
           } else {
             setScrollOffset(0); // Show steps 0-19
           }
-          
           console.log(`Current step: ${nextStep}, Scroll offset: ${nextStep >= 5 ? nextStep - 4 : 0}, Pattern length: ${displayPattern.length}`);
-          
           return nextStep;
         });
       }, stepDuration);
-      
+
       // Start backing track if enabled
       if (backingTrackEnabled && backingTrackRef.current) {
         backingTrackRef.current.play().catch(console.error);
@@ -335,13 +323,12 @@ export const DrumMachine = () => {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      
+
       // Pause backing track
       if (backingTrackRef.current) {
         backingTrackRef.current.pause();
       }
     }
-
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -359,15 +346,13 @@ export const DrumMachine = () => {
           setCurrentSection(sectionAtCurrentStep);
         }
       }
-      
+
       // Play sounds for active notes at current step
-      Object.entries(displayPattern)
-        .filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections')
-        .forEach(([drum, steps]) => {
-          if (Array.isArray(steps) && steps[currentStep]) {
-            playDrumSound(drum);
-          }
-        });
+      Object.entries(displayPattern).filter(([key]) => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').forEach(([drum, steps]) => {
+        if (Array.isArray(steps) && steps[currentStep]) {
+          playDrumSound(drum);
+        }
+      });
 
       // Play metronome on each beat (every 4 steps)
       if (metronomeEnabled && currentStep % 4 === 0) {
@@ -380,7 +365,7 @@ export const DrumMachine = () => {
   useEffect(() => {
     if (isPlaying) {
       timerRef.current = setInterval(() => {
-        setTimeRemaining((prev) => {
+        setTimeRemaining(prev => {
           if (prev <= 1) {
             setIsPlaying(false);
             const minutes = Math.floor(backingTrackDuration / 60);
@@ -388,7 +373,7 @@ export const DrumMachine = () => {
             const timeString = seconds > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : `${minutes} minute${minutes !== 1 ? 's' : ''}`;
             toast({
               title: "Time's up!",
-              description: `${timeString} practice session completed`,
+              description: `${timeString} practice session completed`
             });
             return backingTrackDuration;
           }
@@ -401,375 +386,340 @@ export const DrumMachine = () => {
         timerRef.current = null;
       }
     }
-
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
   }, [isPlaying, toast, backingTrackDuration]);
-
   const playDrumSound = (drum: string) => {
     // Return early if drum sounds are muted
     if (drumSoundsMuted) {
       return;
     }
-
     if (!audioContextRef.current) {
       console.error('Audio context not available');
       return;
     }
-
     const context = audioContextRef.current;
-    
     if (context.state === 'suspended') {
       console.warn('Audio context is suspended, cannot play sound');
       return;
     }
-
     console.log(`Playing drum sound: ${drum}`);
 
     // Normalize drum name for consistent matching
     const normalizedDrum = drum.toLowerCase().replace(/[-\s]/g, '');
-
     if (normalizedDrum.includes('hihat') || normalizedDrum.includes('hat') || normalizedDrum.includes('hh')) {
       const isOpenHat = normalizedDrum.includes('open') || normalizedDrum.includes('crash');
-      
       if (isOpenHat && hhOpenBufferRef.current) {
         // Play loaded HH Open sample
         const source = context.createBufferSource();
         source.buffer = hhOpenBufferRef.current;
-        
+
         // Add some processing to the HH Open sample
         const gainNode = context.createGain();
         const highpass = context.createBiquadFilter();
         const presence = context.createBiquadFilter();
-        
+
         // High-pass to clean up low-end
         highpass.type = 'highpass';
         highpass.frequency.setValueAtTime(8000, context.currentTime);
         highpass.Q.setValueAtTime(0.7, context.currentTime);
-        
+
         // Presence boost for sparkle
         presence.type = 'peaking';
         presence.frequency.setValueAtTime(12000, context.currentTime);
         presence.Q.setValueAtTime(1.2, context.currentTime);
         presence.gain.setValueAtTime(2, context.currentTime);
-        
+
         // Signal chain
         source.connect(highpass);
         highpass.connect(presence);
         presence.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume envelope
         gainNode.gain.setValueAtTime(0.6, context.currentTime);
-        
         source.start(context.currentTime);
       } else if (hhClosedBufferRef.current) {
         // Play loaded HH Closed sample
         const source = context.createBufferSource();
         source.buffer = hhClosedBufferRef.current;
-        
+
         // Add some processing to the HH Closed sample
         const gainNode = context.createGain();
         const highpass = context.createBiquadFilter();
         const crisp = context.createBiquadFilter();
-        
+
         // High-pass for tightness
         highpass.type = 'highpass';
         highpass.frequency.setValueAtTime(10000, context.currentTime);
         highpass.Q.setValueAtTime(0.8, context.currentTime);
-        
+
         // Crisp boost for definition
         crisp.type = 'peaking';
         crisp.frequency.setValueAtTime(14000, context.currentTime);
         crisp.Q.setValueAtTime(1.5, context.currentTime);
         crisp.gain.setValueAtTime(1.5, context.currentTime);
-        
+
         // Signal chain
         source.connect(highpass);
         highpass.connect(crisp);
         crisp.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume envelope
         gainNode.gain.setValueAtTime(0.5, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         // Fallback synthesized closed hi-hat if sample not loaded
         const bufferSize = context.sampleRate * 0.06;
         const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
         const data = buffer.getChannelData(0);
-        
+
         // Generate metallic noise for closed hat
         for (let i = 0; i < bufferSize; i++) {
           data[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufferSize * 12);
         }
-        
         const noise = context.createBufferSource();
         noise.buffer = buffer;
-        
+
         // Filter chain for closed hi-hat character
         const highpass = context.createBiquadFilter();
         highpass.type = 'highpass';
         highpass.frequency.setValueAtTime(9000, context.currentTime);
-        
         const bandpass = context.createBiquadFilter();
         bandpass.type = 'bandpass';
         bandpass.frequency.setValueAtTime(11000, context.currentTime);
         bandpass.Q.setValueAtTime(2, context.currentTime);
-        
         const gainNode = context.createGain();
-        
         noise.connect(highpass);
         highpass.connect(bandpass);
         bandpass.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Tight envelope for closed hat
         gainNode.gain.setValueAtTime(0, context.currentTime);
         gainNode.gain.linearRampToValueAtTime(0.3, context.currentTime + 0.001);
         gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.06);
-        
         noise.start(context.currentTime);
         noise.stop(context.currentTime + 0.06);
       }
-      
     } else if (normalizedDrum.includes('snare') || normalizedDrum.includes('rim')) {
       // Play loaded snare sample
       if (snareBufferRef.current) {
         const source = context.createBufferSource();
         source.buffer = snareBufferRef.current;
-        
+
         // Add some EQ and compression to the sample
         const gainNode = context.createGain();
         const compressor = context.createDynamicsCompressor();
         const eqFilter = context.createBiquadFilter();
-        
+
         // Subtle EQ to enhance the sample
         eqFilter.type = 'peaking';
         eqFilter.frequency.setValueAtTime(3000, context.currentTime);
         eqFilter.Q.setValueAtTime(1.5, context.currentTime);
         eqFilter.gain.setValueAtTime(2, context.currentTime);
-        
+
         // Light compression for consistency
         compressor.threshold.setValueAtTime(-12, context.currentTime);
         compressor.knee.setValueAtTime(6, context.currentTime);
         compressor.ratio.setValueAtTime(4, context.currentTime);
         compressor.attack.setValueAtTime(0.003, context.currentTime);
         compressor.release.setValueAtTime(0.1, context.currentTime);
-        
+
         // Signal chain
         source.connect(eqFilter);
         eqFilter.connect(compressor);
         compressor.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume envelope for consistency with other drums
         gainNode.gain.setValueAtTime(0.7, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         console.warn('Snare sample not loaded yet');
       }
-      
     } else if (normalizedDrum.includes('tom')) {
       // Play loaded tom sample
       if (tomBufferRef.current) {
         const source = context.createBufferSource();
         source.buffer = tomBufferRef.current;
-        
+
         // Add some EQ to make it sound more tom-like
         const gainNode = context.createGain();
         const lowEQ = context.createBiquadFilter();
         const midEQ = context.createBiquadFilter();
-        
+
         // Lower pitch feel for tom
         lowEQ.type = 'lowshelf';
         lowEQ.frequency.setValueAtTime(200, context.currentTime);
         lowEQ.gain.setValueAtTime(3, context.currentTime);
-        
+
         // Mid scoop for tom character
         midEQ.type = 'peaking';
         midEQ.frequency.setValueAtTime(1500, context.currentTime);
         midEQ.Q.setValueAtTime(2, context.currentTime);
         midEQ.gain.setValueAtTime(-3, context.currentTime);
-        
+
         // Signal chain
         source.connect(lowEQ);
         lowEQ.connect(midEQ);
         midEQ.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume
         gainNode.gain.setValueAtTime(0.65, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         console.warn('Tom sample not loaded yet');
       }
-      
     } else if (normalizedDrum.includes('ghost') || normalizedDrum.includes('ghostnote')) {
       // Ghost note - play ghost note sample
       if (ghostNoteBufferRef.current) {
         const source = context.createBufferSource();
         source.buffer = ghostNoteBufferRef.current;
-        
         const gainNode = context.createGain();
-        
+
         // Signal chain
         source.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume - ghost notes are naturally quiet
         gainNode.gain.setValueAtTime(0.8, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         console.warn('Ghost Note sample not loaded yet');
       }
-      
     } else if (normalizedDrum.includes('crash') || normalizedDrum.includes('crashcymbal')) {
       // Crash Cymbal - play crash cymbal sample
       if (crashCymbalBufferRef.current) {
         const source = context.createBufferSource();
         source.buffer = crashCymbalBufferRef.current;
-        
+
         // Add processing for crash cymbal
         const gainNode = context.createGain();
         const highpass = context.createBiquadFilter();
         const shimmer = context.createBiquadFilter();
-        
+
         // High-pass to clean up low-end
         highpass.type = 'highpass';
         highpass.frequency.setValueAtTime(6000, context.currentTime);
         highpass.Q.setValueAtTime(0.7, context.currentTime);
-        
+
         // Shimmer boost for brightness
         shimmer.type = 'peaking';
         shimmer.frequency.setValueAtTime(10000, context.currentTime);
         shimmer.Q.setValueAtTime(1.0, context.currentTime);
         shimmer.gain.setValueAtTime(3, context.currentTime);
-        
+
         // Signal chain
         source.connect(highpass);
         highpass.connect(shimmer);
         shimmer.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume envelope for crash
         gainNode.gain.setValueAtTime(0.7, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         console.warn('Crash Cymbal sample not loaded yet');
       }
-      
     } else if (normalizedDrum.includes('ride') || normalizedDrum.includes('ridecymbal')) {
       // Ride Cymbal - play ride cymbal sample
       if (rideCymbalBufferRef.current) {
         const source = context.createBufferSource();
         source.buffer = rideCymbalBufferRef.current;
-        
+
         // Add processing for ride cymbal
         const gainNode = context.createGain();
         const highpass = context.createBiquadFilter();
         const presence = context.createBiquadFilter();
-        
+
         // High-pass to clean up low-end
         highpass.type = 'highpass';
         highpass.frequency.setValueAtTime(5000, context.currentTime);
         highpass.Q.setValueAtTime(0.7, context.currentTime);
-        
+
         // Presence boost for bell tone
         presence.type = 'peaking';
         presence.frequency.setValueAtTime(8000, context.currentTime);
         presence.Q.setValueAtTime(1.2, context.currentTime);
         presence.gain.setValueAtTime(2, context.currentTime);
-        
+
         // Signal chain
         source.connect(highpass);
         highpass.connect(presence);
         presence.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume envelope for ride
         gainNode.gain.setValueAtTime(0.6, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         console.warn('Ride Cymbal sample not loaded yet');
       }
-      
     } else {
       // Play loaded kick sample
       if (kickBufferRef.current) {
         const source = context.createBufferSource();
         source.buffer = kickBufferRef.current;
-        
+
         // Add EQ and compression to enhance the kick sample
         const gainNode = context.createGain();
         const compressor = context.createDynamicsCompressor();
         const lowEQ = context.createBiquadFilter();
         const midEQ = context.createBiquadFilter();
-        
+
         // Low-end boost for punch
         lowEQ.type = 'lowshelf';
         lowEQ.frequency.setValueAtTime(80, context.currentTime);
         lowEQ.gain.setValueAtTime(4, context.currentTime);
-        
+
         // Mid clarity
         midEQ.type = 'peaking';
         midEQ.frequency.setValueAtTime(2500, context.currentTime);
         midEQ.Q.setValueAtTime(1.5, context.currentTime);
         midEQ.gain.setValueAtTime(2, context.currentTime);
-        
+
         // Compression for punch
         compressor.threshold.setValueAtTime(-8, context.currentTime);
         compressor.knee.setValueAtTime(4, context.currentTime);
         compressor.ratio.setValueAtTime(6, context.currentTime);
         compressor.attack.setValueAtTime(0.001, context.currentTime);
         compressor.release.setValueAtTime(0.06, context.currentTime);
-        
+
         // Signal chain
         source.connect(lowEQ);
         lowEQ.connect(midEQ);
         midEQ.connect(compressor);
         compressor.connect(gainNode);
         gainNode.connect(context.destination);
-        
+
         // Volume envelope for consistency with other drums
         gainNode.gain.setValueAtTime(0.8, context.currentTime);
-        
         source.start(context.currentTime);
       } else {
         console.warn('Kick sample not loaded yet');
       }
     }
   };
-
   const playMetronome = () => {
     if (!audioContextRef.current) return;
-
     const context = audioContextRef.current;
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
-
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
-
     oscillator.frequency.setValueAtTime(1000, context.currentTime);
     oscillator.type = 'sine';
-
     gainNode.gain.setValueAtTime(0.1, context.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.05);
-
     oscillator.start(context.currentTime);
     oscillator.stop(context.currentTime + 0.05);
   };
-
   const togglePlay = async () => {
     // Resume audio context if suspended (required by browser autoplay policies)
     if (audioContextRef.current?.state === 'suspended') {
@@ -786,69 +736,106 @@ export const DrumMachine = () => {
         return;
       }
     }
-
     setIsPlaying(!isPlaying);
     if (!isPlaying) {
       toast({
         title: "Playing",
-        description: "Drum pattern started",
+        description: "Drum pattern started"
       });
     }
   };
-
   const reset = () => {
     setIsPlaying(false);
     setCurrentStep(0);
     setScrollOffset(0);
     setTimeRemaining(120); // Reset timer to 2:00
     setCurrentSection(''); // Reset section
-    
+
     // Reset backing track to beginning
     if (backingTrackRef.current) {
       backingTrackRef.current.currentTime = 0;
       backingTrackRef.current.pause();
     }
-    
     toast({
       title: "Reset",
-      description: "Pattern reset to beginning",
+      description: "Pattern reset to beginning"
     });
   };
-
   const changeBpm = (delta: number) => {
     setBpm(prev => Math.max(60, Math.min(200, prev + delta)));
   };
 
   // Helper function to get drum display info
   const getDrumInfo = (instrument: string) => {
-    const drumMap: Record<string, { name: string; symbol: string; color: string }> = {
-      'Kick': { name: 'Kick Drum', symbol: '●', color: 'text-red-500' },
-      'Snare': { name: 'Snare Drum', symbol: '×', color: 'text-orange-500' },
-      'Hi-Hat': { name: 'Hi-Hat', symbol: '○', color: 'text-blue-500' },
-      'Tom': { name: 'Tom-tom', symbol: '●', color: 'text-purple-500' },
-      'kick': { name: 'Kick Drum', symbol: '●', color: 'text-red-500' },
-      'snare': { name: 'Snare Drum', symbol: '×', color: 'text-orange-500' },
-      'hihat': { name: 'Hi-Hat (Closed)', symbol: '○', color: 'text-blue-500' },
-      'openhat': { name: 'Hi-Hat (Open)', symbol: '◎', color: 'text-cyan-500' },
-      'tom': { name: 'Tom-tom', symbol: '●', color: 'text-purple-500' }
+    const drumMap: Record<string, {
+      name: string;
+      symbol: string;
+      color: string;
+    }> = {
+      'Kick': {
+        name: 'Kick Drum',
+        symbol: '●',
+        color: 'text-red-500'
+      },
+      'Snare': {
+        name: 'Snare Drum',
+        symbol: '×',
+        color: 'text-orange-500'
+      },
+      'Hi-Hat': {
+        name: 'Hi-Hat',
+        symbol: '○',
+        color: 'text-blue-500'
+      },
+      'Tom': {
+        name: 'Tom-tom',
+        symbol: '●',
+        color: 'text-purple-500'
+      },
+      'kick': {
+        name: 'Kick Drum',
+        symbol: '●',
+        color: 'text-red-500'
+      },
+      'snare': {
+        name: 'Snare Drum',
+        symbol: '×',
+        color: 'text-orange-500'
+      },
+      'hihat': {
+        name: 'Hi-Hat (Closed)',
+        symbol: '○',
+        color: 'text-blue-500'
+      },
+      'openhat': {
+        name: 'Hi-Hat (Open)',
+        symbol: '◎',
+        color: 'text-cyan-500'
+      },
+      'tom': {
+        name: 'Tom-tom',
+        symbol: '●',
+        color: 'text-purple-500'
+      }
     };
-    
-    return drumMap[instrument] || { name: instrument, symbol: '●', color: 'text-gray-500' };
+    return drumMap[instrument] || {
+      name: instrument,
+      symbol: '●',
+      color: 'text-gray-500'
+    };
   };
-
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
-
   const changePatternLength = (newLength: 8 | 16) => {
     setPatternLength(newLength);
     setCurrentStep(0);
     setScrollOffset(0);
-    
-    const newPattern: DrumPattern = { length: newLength };
-    
+    const newPattern: DrumPattern = {
+      length: newLength
+    };
     Object.keys(pattern).forEach(key => {
       if (key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections') {
         const oldSteps = pattern[key] as boolean[];
@@ -863,54 +850,48 @@ export const DrumMachine = () => {
         }
       }
     });
-    
     setPattern(newPattern);
     toast({
       title: "Pattern Length Changed",
-      description: `Now using ${newLength}-step pattern (${newLength === 8 ? '1 bar' : '2 bars'})`,
+      description: `Now using ${newLength}-step pattern (${newLength === 8 ? '1 bar' : '2 bars'})`
     });
   };
-
   const toggleStep = (drum: string, step: number) => {
     setPattern(prev => ({
       ...prev,
-      [drum]: (prev[drum] as boolean[]).map((active, index) => 
-        index === step ? !active : active
-      )
+      [drum]: (prev[drum] as boolean[]).map((active, index) => index === step ? !active : active)
     }));
   };
-
   const clearPattern = () => {
-    const clearedPattern: DrumPattern = { length: patternLength };
-    
+    const clearedPattern: DrumPattern = {
+      length: patternLength
+    };
+
     // Clear all instrument patterns
     Object.keys(pattern).forEach(key => {
       if (key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections') {
         clearedPattern[key] = new Array(patternLength).fill(false);
       }
     });
-    
     setPattern(clearedPattern);
     toast({
       title: "Cleared",
-      description: "All patterns cleared",
+      description: "All patterns cleared"
     });
   };
-
   const loadCSVPattern = async () => {
     try {
       const newPattern = await loadPatternFromFile();
       setPattern(newPattern);
-      
+
       // Reset playback state for the new pattern
       setCurrentStep(0);
       setScrollOffset(0);
       setCurrentSection(''); // Reset section
-      
+
       // Analyze loaded pattern to show component info
       const activeComponents: string[] = [];
       let totalBeats = 0;
-      
       Object.entries(newPattern).forEach(([drumType, steps]) => {
         if (drumType !== 'length' && drumType !== 'subdivisions' && drumType !== 'offsets' && drumType !== 'sections' && Array.isArray(steps)) {
           const activeSteps = (steps as boolean[]).filter(Boolean).length;
@@ -920,15 +901,13 @@ export const DrumMachine = () => {
           }
         }
       });
-      
       setLoadedPatternInfo({
         componentsFound: activeComponents,
         totalBeats
       });
-      
       toast({
         title: "Pattern Loaded Successfully",
-        description: `${newPattern.length} steps, ${activeComponents.length} instruments, ${totalBeats} hits total`,
+        description: `${newPattern.length} steps, ${activeComponents.length} instruments, ${totalBeats} hits total`
       });
     } catch (error) {
       // Show the actual error message from the hook
@@ -936,12 +915,11 @@ export const DrumMachine = () => {
       toast({
         title: "Failed to Load Pattern",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
       console.error('CSV loading error:', error);
     }
   };
-
   const clearLoadedPattern = () => {
     // Reset to initial empty pattern
     const initialLength = 16;
@@ -952,27 +930,23 @@ export const DrumMachine = () => {
       'HH Open': new Array(initialLength).fill(false),
       'Tom': new Array(initialLength).fill(false),
       'Ghost Note': new Array(initialLength).fill(false),
-      length: initialLength,
+      length: initialLength
     };
-    
     setPattern(emptyPattern);
     setLoadedPatternInfo(null);
-    
+
     // Reset playback
     if (isPlaying) {
       setIsPlaying(false);
     }
     setCurrentStep(0);
     setScrollOffset(0);
-    
     toast({
       title: "Pattern Cleared",
-      description: "Loaded pattern has been removed from memory",
+      description: "Loaded pattern has been removed from memory"
     });
   };
-
-  return (
-    <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
+  return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
         {/* Pattern Instructions */}
         <div className="text-center mb-6">
           <p className="text-muted-foreground text-lg">
@@ -987,31 +961,24 @@ export const DrumMachine = () => {
             <h3 className="text-sm font-semibold text-foreground mb-3">Available Drum Components</h3>
             <div className="space-y-2">
               {/* Drum Info */}
-              {Object.keys(displayPattern).filter(key => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map((instrument) => {
-                const steps = displayPattern[instrument] as boolean[];
-                if (!Array.isArray(steps)) return null;
-                
-                const isActive = steps.some(Boolean);
-                const drumInfo = getDrumInfo(instrument);
-                
-                return (
-                  <div key={instrument} className={cn("flex items-center gap-3 p-2 rounded", isActive ? "bg-accent/10" : "opacity-60")}>
+              {Object.keys(displayPattern).filter(key => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(instrument => {
+            const steps = displayPattern[instrument] as boolean[];
+            if (!Array.isArray(steps)) return null;
+            const isActive = steps.some(Boolean);
+            const drumInfo = getDrumInfo(instrument);
+            return <div key={instrument} className={cn("flex items-center gap-3 p-2 rounded", isActive ? "bg-accent/10" : "opacity-60")}>
                     <span className={cn("text-lg font-mono", drumInfo.color)}>{drumInfo.symbol}</span>
                     <span className="text-sm font-medium">{drumInfo.name}</span>
-                    {isActive && (
-                      <span className="ml-auto text-xs text-accent font-medium">
+                    {isActive && <span className="ml-auto text-xs text-accent font-medium">
                         {steps.filter(Boolean).length} beats
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+                      </span>}
+                  </div>;
+          })}
             </div>
           </div>
 
           {/* Loaded Pattern Info */}
-          {loadedPatternInfo && (
-            <div className="bg-card border border-border rounded-lg p-4">
+          {loadedPatternInfo && <div className="bg-card border border-border rounded-lg p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Loaded Pattern Info</h3>
               <div className="space-y-2">
                 <div className="text-sm">
@@ -1026,13 +993,11 @@ export const DrumMachine = () => {
                   Active: {loadedPatternInfo.componentsFound.join(', ')}
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
         </div>
 
         {/* Detection Status */}
-        {isListening && detectedBeats.length > 0 && (
-          <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
+        {isListening && detectedBeats.length > 0 && <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
             <div className="text-sm font-medium text-accent mb-2">
               Detected Beats ({detectedBeats.length})
             </div>
@@ -1040,8 +1005,7 @@ export const DrumMachine = () => {
               Last detected: {detectedBeats[detectedBeats.length - 1]?.type} 
               (confidence: {Math.round((detectedBeats[detectedBeats.length - 1]?.confidence || 0) * 100)}%)
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Main Pattern Content */}
         <div className="space-y-6">
@@ -1051,31 +1015,24 @@ export const DrumMachine = () => {
             <div className="hidden bg-card border border-border rounded-lg p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Available Drum Components</h3>
               <div className="space-y-2">
-                {Object.keys(displayPattern).filter(key => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map((instrument) => {
-                  const steps = displayPattern[instrument] as boolean[];
-                  if (!Array.isArray(steps)) return null;
-                  
-                  const isActive = steps.some(Boolean);
-                  const drumInfo = getDrumInfo(instrument);
-                  
-                  return (
-                    <div key={instrument} className={cn("flex items-center gap-3 p-2 rounded", isActive ? "bg-accent/10" : "opacity-60")}>
+                {Object.keys(displayPattern).filter(key => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(instrument => {
+              const steps = displayPattern[instrument] as boolean[];
+              if (!Array.isArray(steps)) return null;
+              const isActive = steps.some(Boolean);
+              const drumInfo = getDrumInfo(instrument);
+              return <div key={instrument} className={cn("flex items-center gap-3 p-2 rounded", isActive ? "bg-accent/10" : "opacity-60")}>
                       <span className={cn("text-lg font-mono", drumInfo.color)}>{drumInfo.symbol}</span>
                       <span className="text-sm font-medium">{drumInfo.name}</span>
-                      {isActive && (
-                        <span className="ml-auto text-xs text-accent font-medium">
+                      {isActive && <span className="ml-auto text-xs text-accent font-medium">
                           {steps.filter(Boolean).length} beats
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+                        </span>}
+                    </div>;
+            })}
               </div>
             </div>
 
             {/* Loaded Pattern Info */}
-            {loadedPatternInfo && (
-              <div className="bg-card border border-border rounded-lg p-4">
+            {loadedPatternInfo && <div className="bg-card border border-border rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-foreground mb-3">Loaded Pattern Info</h3>
                 <div className="space-y-2">
                   <div className="text-sm">
@@ -1090,13 +1047,11 @@ export const DrumMachine = () => {
                     Active: {loadedPatternInfo.componentsFound.join(', ')}
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Detection Status */}
-          {isListening && detectedBeats.length > 0 && (
-            <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
+          {isListening && detectedBeats.length > 0 && <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
               <div className="text-sm font-medium text-accent mb-2">
                 Detected Beats ({detectedBeats.length})
               </div>
@@ -1104,8 +1059,7 @@ export const DrumMachine = () => {
                 Last detected: {detectedBeats[detectedBeats.length - 1]?.type} 
                 (confidence: {Math.round((detectedBeats[detectedBeats.length - 1]?.confidence || 0) * 100)}%)
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Pattern Length Controls */}
           <div className="hidden flex items-center justify-center gap-4 mb-4">
@@ -1117,199 +1071,109 @@ export const DrumMachine = () => {
 
           {/* Display Mode Toggle */}
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Button
-              variant={displayMode === 'grid' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setDisplayMode('grid')}
-              className="flex items-center gap-2"
-            >
+            <Button variant={displayMode === 'grid' ? "default" : "ghost"} size="sm" onClick={() => setDisplayMode('grid')} className="flex items-center gap-2">
               <Grid3x3 className="h-4 w-4" />
               Grid View
             </Button>
-            <Button
-              variant={displayMode === 'notation' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setDisplayMode('notation')}
-              className="flex items-center gap-2"
-            >
+            <Button variant={displayMode === 'notation' ? "default" : "ghost"} size="sm" onClick={() => setDisplayMode('notation')} className="flex items-center gap-2">
               <Music2 className="h-4 w-4" />
               Notation View
             </Button>
           </div>
 
           {/* Drum Display */}
-          {displayMode === 'grid' ? (
-            <DrumGrid
-              pattern={displayPattern}
-              currentStep={currentStep}
-              scrollOffset={scrollOffset}
-              visibleStepsCount={20}
-              onStepToggle={toggleStep}
-              onClearPattern={clearPattern}
-              metronomeEnabled={metronomeEnabled}
-              onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
-              onTogglePlay={togglePlay}
-              isPlaying={isPlaying}
-              onLoadPattern={loadCSVPattern}
-              isLoadingPattern={isLoadingPattern}
-              onClearLoadedPattern={clearLoadedPattern}
-              hasLoadedPattern={!!loadedPatternInfo}
-            />
-          ) : (
-            <DrumNotation
-              pattern={displayPattern}
-              currentStep={currentStep}
-              scrollOffset={scrollOffset}
-              visibleStepsCount={20}
-              onStepToggle={toggleStep}
-              onClearPattern={clearPattern}
-              metronomeEnabled={metronomeEnabled}
-              onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
-              onTogglePlay={togglePlay}
-              isPlaying={isPlaying}
-              onLoadPattern={loadCSVPattern}
-              isLoadingPattern={isLoadingPattern}
-              onClearLoadedPattern={clearLoadedPattern}
-              hasLoadedPattern={!!loadedPatternInfo}
-            />
-          )}
+          {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
 
           {/* Bottom Toolbar */}
           <div className="flex justify-between items-center mt-8 max-w-4xl mx-auto">
             {/* Left Side Controls */}
             <div className="flex items-center gap-4">
               {/* Section Indicator Chip */}
-              {currentSection && (
-                <div className="rounded-full px-4 py-2 bg-primary/20 border border-primary/30">
+              {currentSection && <div className="rounded-full px-4 py-2 bg-primary/20 border border-primary/30">
                   <span className="text-sm font-medium text-primary">
                     {currentSection}
                   </span>
-                </div>
-              )}
+                </div>}
               
               {/* Custom Metronome Toggle */}
-              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{ backgroundColor: '#333537' }}>
-                <button
-                  onClick={() => setMetronomeEnabled(!metronomeEnabled)}
-                  className={cn(
-                    "relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2",
-                    metronomeEnabled ? "bg-violet-600" : "bg-gray-300"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg",
-                      metronomeEnabled ? "translate-x-5" : "translate-x-1"
-                    )}
-                  />
+              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={() => setMetronomeEnabled(!metronomeEnabled)} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2", metronomeEnabled ? "bg-violet-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", metronomeEnabled ? "translate-x-5" : "translate-x-1")} />
                 </button>
                 
                 {/* Metronome Icon */}
-                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{ backgroundColor: metronomeEnabled ? '#BFA5C4' : '#786C7D' }}>
-                  <img 
-                    src="/lovable-uploads/6591da94-1dfe-488c-93dc-4572ae65a891.png" 
-                    alt="Metronome"
-                    className="w-8 h-8"
-                  />
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: metronomeEnabled ? '#BFA5C4' : '#786C7D'
+            }}>
+                  <img src="/lovable-uploads/6591da94-1dfe-488c-93dc-4572ae65a891.png" alt="Metronome" className="w-8 h-8" />
                 </div>
               </div>
 
               {/* Drum Listener Toggle */}
-              <div className="hidden flex items-center gap-3 rounded-[20px] px-4 py-2" style={{ backgroundColor: '#333537' }}>
-                <button
-                  onClick={handleListenerToggle}
-                  disabled={!isModelLoaded}
-                  className={cn(
-                    "relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
-                    isListening ? "bg-red-600" : "bg-gray-300"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg",
-                      isListening ? "translate-x-5" : "translate-x-1"
-                    )}
-                  />
+              <div className="hidden flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={handleListenerToggle} disabled={!isModelLoaded} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed", isListening ? "bg-red-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", isListening ? "translate-x-5" : "translate-x-1")} />
                 </button>
                 
                 {/* Microphone Icon */}
-                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{ backgroundColor: isListening ? '#ff6b6b' : '#786C7D' }}>
-                  {isListening ? (
-                    <Mic className="h-4 w-4 text-white" />
-                  ) : (
-                    <MicOff className="h-4 w-4 text-white" />
-                  )}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: isListening ? '#ff6b6b' : '#786C7D'
+            }}>
+                  {isListening ? <Mic className="h-4 w-4 text-white" /> : <MicOff className="h-4 w-4 text-white" />}
                 </div>
                 
                 {/* Audio Level Indicator */}
-                {isListening && (
-                  <div className="w-8 h-4 bg-gray-700 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-green-400 transition-all duration-100 rounded-full"
-                      style={{ width: `${audioLevel * 100}%` }}
-                    />
-                  </div>
-                )}
+                {isListening && <div className="w-8 h-4 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-400 transition-all duration-100 rounded-full" style={{
+                width: `${audioLevel * 100}%`
+              }} />
+                  </div>}
               </div>
 
               {/* Drum Mute Toggle */}
-              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{ backgroundColor: '#333537' }}>
-                <button
-                  onClick={() => setDrumSoundsMuted(!drumSoundsMuted)}
-                  className={cn(
-                    "relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2",
-                    drumSoundsMuted ? "bg-red-600" : "bg-gray-300"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg",
-                      drumSoundsMuted ? "translate-x-5" : "translate-x-1"
-                    )}
-                  />
+              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={() => setDrumSoundsMuted(!drumSoundsMuted)} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2", drumSoundsMuted ? "bg-red-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", drumSoundsMuted ? "translate-x-5" : "translate-x-1")} />
                 </button>
                 
                 {/* Volume Icon */}
-                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{ backgroundColor: drumSoundsMuted ? '#ff6b6b' : '#786C7D' }}>
-                  {drumSoundsMuted ? (
-                    <VolumeX className="h-4 w-4 text-white" />
-                  ) : (
-                    <Volume2 className="h-4 w-4 text-white" />
-                  )}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: drumSoundsMuted ? '#ff6b6b' : '#786C7D'
+            }}>
+                  {drumSoundsMuted ? <VolumeX className="h-4 w-4 text-white" /> : <Volume2 className="h-4 w-4 text-white" />}
                 </div>
               </div>
 
               {/* Backing Track Toggle */}
-              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{ backgroundColor: '#333537' }}>
-                <button
-                  onClick={() => {
-                    const newState = !backingTrackEnabled;
-                    setBackingTrackEnabled(newState);
-                    
-                    // Immediately control the backing track audio
-                    if (backingTrackRef.current) {
-                      if (newState && isPlaying) {
-                        backingTrackRef.current.play().catch(console.error);
-                      } else {
-                        backingTrackRef.current.pause();
-                      }
-                    }
-                  }}
-                  className={cn(
-                    "relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2",
-                    backingTrackEnabled ? "bg-blue-600" : "bg-gray-300"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg",
-                      backingTrackEnabled ? "translate-x-5" : "translate-x-1"
-                    )}
-                  />
+              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={() => {
+              const newState = !backingTrackEnabled;
+              setBackingTrackEnabled(newState);
+
+              // Immediately control the backing track audio
+              if (backingTrackRef.current) {
+                if (newState && isPlaying) {
+                  backingTrackRef.current.play().catch(console.error);
+                } else {
+                  backingTrackRef.current.pause();
+                }
+              }
+            }} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2", backingTrackEnabled ? "bg-blue-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", backingTrackEnabled ? "translate-x-5" : "translate-x-1")} />
                 </button>
                 
                 {/* Music Icon */}
-                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{ backgroundColor: backingTrackEnabled ? '#3B82F6' : '#786C7D' }}>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: backingTrackEnabled ? '#3B82F6' : '#786C7D'
+            }}>
                   <Music className="h-4 w-4 text-white" />
                 </div>
               </div>
@@ -1319,29 +1183,19 @@ export const DrumMachine = () => {
             <div className="flex items-center gap-4">
               {/* Tempo Controls */}
               <div className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => changeBpm(-5)}
-                  className="h-8 w-8"
-                >
+                <Button variant="ghost" size="icon" onClick={() => changeBpm(-5)} className="h-8 w-8">
                   <Minus className="h-4 w-4" />
                 </Button>
                 
                 <div className="flex items-center gap-2 px-3">
                   <div className="w-3 h-3 rounded-full bg-tempo-accent"></div>
-                  <div className="w-3 h-3 rounded-full bg-primary"></div>
+                  
                   <span className="text-2xl font-bold text-foreground mx-3">
                     {bpm}
                   </span>
                 </div>
                 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => changeBpm(5)}
-                  className="h-8 w-8"
-                >
+                <Button variant="ghost" size="icon" onClick={() => changeBpm(5)} className="h-8 w-8">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -1354,26 +1208,15 @@ export const DrumMachine = () => {
               </div>
 
               {/* Play Controls */}
-              <Button
-                variant={isPlaying ? "default" : "secondary"}
-                size="icon"
-                onClick={togglePlay}
-                className="h-12 w-12"
-              >
+              <Button variant={isPlaying ? "default" : "secondary"} size="icon" onClick={togglePlay} className="h-12 w-12">
                 {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
               </Button>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={reset}
-                className="h-12 w-12"
-              >
+              <Button variant="ghost" size="icon" onClick={reset} className="h-12 w-12">
                 <RotateCcw className="h-5 w-5" />
               </Button>
             </div>
           </div>
         </div>
-    </div>
-  );
+    </div>;
 };
