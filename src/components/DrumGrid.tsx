@@ -143,8 +143,9 @@ export const DrumGrid = ({
   // Calculate playhead position within the current visible window
   const playheadIndex = Math.min(Math.max(currentStep - startStep, 0), Math.max(visibleSteps - 1, 0));
   return <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex items-center justify-end gap-2">
+      {/* Controls Container */}
+      <div className="controls-container">
+        <div className="flex items-center justify-end gap-2">
         <Button
           variant={isPlaying ? "default" : "ghost"}
           onClick={onTogglePlay}
@@ -193,10 +194,12 @@ export const DrumGrid = ({
             className="w-4 h-4"
           />
         </Button>
+        </div>
       </div>
 
-      {/* Grid Container */}
-      <div className="relative bg-card rounded-lg p-6 shadow-elevated overflow-hidden">
+      {/* Drum Grid Container */}
+      <div className="drum-grid-container">
+        <div className="relative bg-card rounded-lg p-6 shadow-elevated overflow-hidden">
         {/* Step Position Indicator */}
         <div className="text-xs text-muted-foreground text-center mb-2">
           Step {currentStep + 1} / {pattern.length}
@@ -382,6 +385,7 @@ export const DrumGrid = ({
         {endStep < pattern.length && (
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
         )}
+        </div>
       </div>
 
       {/* Pattern Info */}
