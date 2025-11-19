@@ -1188,7 +1188,7 @@ export const DrumMachine = () => {
                 </Button>
                 
                 <div className="flex items-center gap-2 px-3">
-                  <div className="w-3 h-3 rounded-full bg-tempo-accent"></div>
+                  
                   
                   <span className="text-2xl font-bold text-foreground mx-3">
                     {bpm}
