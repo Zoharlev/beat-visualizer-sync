@@ -40,7 +40,7 @@ export const DrumMachine = () => {
       length: initialLength
     };
   });
-  const [backingTrackEnabled, setBackingTrackEnabled] = useState(false);
+  const [backingTrackEnabled, setBackingTrackEnabled] = useState(true);
   const [drumSoundsMuted, setDrumSoundsMuted] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>('');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
