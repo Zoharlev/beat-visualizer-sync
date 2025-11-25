@@ -251,7 +251,7 @@ export const DrumGrid = ({
               {/* Drum Label */}
               <div className="w-20 flex items-center pr-4 gap-0">
                 <span className="text-lg font-mono text-accent w-6 flex-shrink-0 text-center">{drumInfo.symbol}</span>
-                <span className="text-foreground flex-1 line-clamp-2 text-xs text-left font-normal">{drumInfo.name}</span>
+                <span className="text-foreground flex-1 truncate text-xs text-left font-normal">{drumInfo.name}</span>
               </div>
 
               {/* Grid Line */}
