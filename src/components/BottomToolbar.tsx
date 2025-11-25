@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import gridIconActive from "@/assets/grid-icon-active.png";
+import gridIconIdle from "@/assets/grid-icon-idle.png";
 import drumIconActive from "@/assets/drum-icon-active.png";
 
 interface BottomToolbarProps {
@@ -68,11 +69,11 @@ export const BottomToolbar = ({
             onClick={() => onDisplayModeChange("grid")}
             className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
           >
-            {displayMode === "grid" ? (
-              <img src={gridIconActive} alt="Grid view" className="h-6 w-6" />
-            ) : (
-              <Grid3x3 className="h-6 w-6 text-white" />
-            )}
+            <img 
+              src={displayMode === "grid" ? gridIconActive : gridIconIdle} 
+              alt="Grid view" 
+              className="h-6 w-6" 
+            />
           </Button>
         </div>
 
