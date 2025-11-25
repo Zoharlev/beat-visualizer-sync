@@ -6,6 +6,7 @@ import { DrumNotation } from "./DrumNotation";
 import { PatternNavigation } from "./PatternNavigation";
 import { Toolbar } from "./Toolbar";
 import { BottomToolbar } from "./BottomToolbar";
+import { RotationPrompt } from "./RotationPrompt";
 import { useToast } from "@/hooks/use-toast";
 import { useDrumListener } from "@/hooks/useDrumListener";
 import { useCSVPatternLoader } from "@/hooks/useCSVPatternLoader";
@@ -1033,6 +1034,7 @@ export const DrumMachine = () => {
     });
   };
   return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
+      <RotationPrompt />
 
         {/* Drum Components Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
