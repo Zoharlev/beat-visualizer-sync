@@ -58,9 +58,9 @@ export const Toolbar = ({
           variant="ghost"
           size="icon"
           onClick={onRestart}
-          className="h-12 w-12 rounded-full bg-background/10 hover:bg-background/20"
+          className="h-12 w-12 rounded-full p-0 bg-transparent"
         >
-          <RotateCcw className="h-6 w-6 text-foreground" />
+          <img src="/icons/restart-button-idle.png" alt="Restart" className="h-10 w-10" />
         </Button>
 
         {onClose && (
