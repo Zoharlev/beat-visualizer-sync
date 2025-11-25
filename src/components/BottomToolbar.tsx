@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import gridIconActive from "@/assets/grid-icon-active.png";
+import drumIconActive from "@/assets/drum-icon-active.png";
 
 interface BottomToolbarProps {
   displayMode: "grid" | "notation";
@@ -95,10 +96,14 @@ export const BottomToolbar = ({
           )}
           title="Drum Sounds"
         >
-          <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-            <path d="M12 6v12M6 12h12" strokeWidth="2"/>
-          </svg>
+          {drumSoundsEnabled ? (
+            <img src={drumIconActive} alt="Drum sounds" className="h-8 w-8" />
+          ) : (
+            <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+              <path d="M12 6v12M6 12h12" strokeWidth="2"/>
+            </svg>
+          )}
         </Button>
 
         <Button
