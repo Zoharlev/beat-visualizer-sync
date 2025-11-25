@@ -30,7 +30,7 @@ export const Toolbar = ({
       <div className="flex-1 flex justify-center">
         <div className={cn(
           "px-6 py-2 rounded-full text-sm font-medium",
-          "bg-primary text-primary-foreground"
+          "bg-[#6764db] text-primary-foreground"
         )}>
           {currentSection || "Loading..."}
         </div>
