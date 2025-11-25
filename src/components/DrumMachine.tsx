@@ -1114,6 +1114,10 @@ export const DrumMachine = () => {
               isPlaying={isPlaying}
               onPlayPause={togglePlay}
               onRestart={reset}
+              onClose={() => {
+                // TODO: Define close functionality
+                console.log('Close button clicked');
+              }}
             />
           </div>
 

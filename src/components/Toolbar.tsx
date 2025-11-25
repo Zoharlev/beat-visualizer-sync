@@ -8,7 +8,7 @@ interface ToolbarProps {
   isPlaying: boolean;
   onPlayPause: () => void;
   onRestart: () => void;
-  onClose?: () => void;
+  onClose: () => void;
 }
 
 export const Toolbar = ({
@@ -67,16 +67,14 @@ export const Toolbar = ({
           <img src="/icons/restart-button-active.png" alt="Restart Active" className="h-10 w-10 absolute inset-0 m-auto opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200" />
         </Button>
 
-        {onClose && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-12 w-12 rounded-full bg-background/10 hover:bg-background/20"
-          >
-            <X className="h-6 w-6 text-foreground" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-12 w-12 rounded-full p-0 bg-transparent"
+        >
+          <img src="/icons/close-button.png" alt="Close" className="h-10 w-10" />
+        </Button>
       </div>
     </div>
   );
