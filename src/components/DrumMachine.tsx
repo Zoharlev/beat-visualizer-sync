@@ -1016,7 +1016,7 @@ export const DrumMachine = () => {
           </div>
 
           {/* Loaded Pattern Info */}
-          {loadedPatternInfo && <div className="bg-card border border-border rounded-lg p-4">
+          {loadedPatternInfo && <div className="hidden bg-card border border-border rounded-lg p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Loaded Pattern Info</h3>
               <div className="space-y-2">
                 <div className="text-sm">
@@ -1070,7 +1070,7 @@ export const DrumMachine = () => {
             </div>
 
             {/* Loaded Pattern Info */}
-            {loadedPatternInfo && <div className="bg-card border border-border rounded-lg p-4">
+            {loadedPatternInfo && <div className="hidden bg-card border border-border rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-foreground mb-3">Loaded Pattern Info</h3>
                 <div className="space-y-2">
                   <div className="text-sm">
