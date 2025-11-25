@@ -45,7 +45,7 @@ export const Toolbar = ({
           className="h-12 w-12 rounded-full p-0 bg-transparent group relative"
         >
           {isPlaying ? (
-            <Pause className="h-6 w-6 text-foreground" />
+            <img src="/icons/pause-button-idle.png" alt="Pause" className="h-10 w-10" />
           ) : (
             <>
               <img src="/icons/play-button-idle.png" alt="Play" className="h-10 w-10 group-hover:opacity-0 group-active:opacity-0 transition-opacity duration-200" />
