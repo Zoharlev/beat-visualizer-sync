@@ -162,21 +162,6 @@ export const DrumGrid = ({
           <Trash2 className="h-4 w-4" />
           Clear
         </Button>
-        {onLoadPattern && (
-          <Button 
-            onClick={onLoadPattern} 
-            variant="outline" 
-            className="flex items-center gap-2"
-            disabled={isLoadingPattern}
-          >
-            {isLoadingPattern ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            Load CSV
-          </Button>
-        )}
         {onClearLoadedPattern && hasLoadedPattern && (
           <Button 
             onClick={onClearLoadedPattern} 

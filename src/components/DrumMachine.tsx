@@ -263,6 +263,11 @@ export const DrumMachine = () => {
     };
   }, []);
 
+  // Automatically load CSV pattern on mount
+  useEffect(() => {
+    loadCSVPattern();
+  }, []);
+
   // Step timing based on BPM where 1 Beat = 4 Steps
   // At 120 BPM: each beat = 500ms, each step = 125ms
   const stepDuration = 60 / bpm / 4 * 1000;
