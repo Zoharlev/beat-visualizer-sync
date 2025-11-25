@@ -5,6 +5,7 @@ import { DrumGrid } from "./DrumGrid";
 import { DrumNotation } from "./DrumNotation";
 import { PatternNavigation } from "./PatternNavigation";
 import { Toolbar } from "./Toolbar";
+import { BottomToolbar } from "./BottomToolbar";
 import { useToast } from "@/hooks/use-toast";
 import { useDrumListener } from "@/hooks/useDrumListener";
 import { useCSVPatternLoader } from "@/hooks/useCSVPatternLoader";
@@ -1285,6 +1286,25 @@ export const DrumMachine = () => {
               <Settings className="h-5 w-5" />
             </button>
           )}
+
+          {/* Bottom Toolbar */}
+          <div className="mt-4">
+            <BottomToolbar
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
+              drumSoundsEnabled={!drumSoundsMuted}
+              onDrumSoundsToggle={() => setDrumSoundsMuted(!drumSoundsMuted)}
+              metronomeEnabled={metronomeEnabled}
+              onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
+              backingTrackEnabled={backingTrackEnabled}
+              onBackingTrackToggle={() => setBackingTrackEnabled(!backingTrackEnabled)}
+              currentTime={backingTrackDuration - timeRemaining}
+              duration={backingTrackDuration}
+              bpm={bpm}
+              maxBpm={123}
+              onBpmChange={(delta) => setBpm(Math.max(40, Math.min(200, bpm + delta)))}
+            />
+          </div>
         </div>
     </div>;
 };
