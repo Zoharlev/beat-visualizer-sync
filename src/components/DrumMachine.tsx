@@ -990,14 +990,6 @@ export const DrumMachine = () => {
     });
   };
   return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
-        {/* Top Toolbar */}
-        <Toolbar
-          songName="Sweet Child o Mine"
-          currentSection={currentSection || "Intro 2"}
-          isPlaying={isPlaying}
-          onPlayPause={togglePlay}
-          onRestart={reset}
-        />
 
         {/* Drum Components Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1114,16 +1106,15 @@ export const DrumMachine = () => {
             </div>
           </div>
 
-          {/* Display Mode Toggle */}
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Button variant={displayMode === 'grid' ? "default" : "ghost"} size="sm" onClick={() => setDisplayMode('grid')} className="flex items-center gap-2">
-              <Grid3x3 className="h-4 w-4" />
-              Grid View
-            </Button>
-            <Button variant={displayMode === 'notation' ? "default" : "ghost"} size="sm" onClick={() => setDisplayMode('notation')} className="flex items-center gap-2">
-              <Music2 className="h-4 w-4" />
-              Notation View
-            </Button>
+          {/* Toolbar */}
+          <div className="mb-4">
+            <Toolbar
+              songName="Sweet Child o Mine"
+              currentSection={currentSection || "Intro 2"}
+              isPlaying={isPlaying}
+              onPlayPause={togglePlay}
+              onRestart={reset}
+            />
           </div>
 
           {/* Drum Display */}
