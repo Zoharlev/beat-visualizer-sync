@@ -1013,63 +1013,9 @@ export const DrumMachine = () => {
       description: "Loaded pattern has been removed from memory"
     });
   };
-  return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
-
-        {/* Drum Components Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Available Drum Components */}
-          <div className="hidden bg-card border border-border rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Available Drum Components</h3>
-            <div className="space-y-2">
-              {/* Drum Info */}
-              {Object.keys(displayPattern).filter(key => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(instrument => {
-            const steps = displayPattern[instrument] as boolean[];
-            if (!Array.isArray(steps)) return null;
-            const isActive = steps.some(Boolean);
-            const drumInfo = getDrumInfo(instrument);
-            return <div key={instrument} className={cn("flex items-center gap-3 p-2 rounded", isActive ? "bg-accent/10" : "opacity-60")}>
-                    <span className={cn("text-lg font-mono", drumInfo.color)}>{drumInfo.symbol}</span>
-                    <span className="text-sm font-medium">{drumInfo.name}</span>
-                    {isActive && <span className="ml-auto text-xs text-accent font-medium">
-                        {steps.filter(Boolean).length} beats
-                      </span>}
-                  </div>;
-          })}
-            </div>
-          </div>
-
-          {/* Loaded Pattern Info */}
-          {loadedPatternInfo && <div className="bg-card border border-border rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Loaded Pattern Info</h3>
-              <div className="space-y-2">
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Components Found:</span>
-                  <span className="ml-2 font-medium">{loadedPatternInfo.componentsFound.length}</span>
-                </div>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Total Beats:</span>
-                  <span className="ml-2 font-medium">{loadedPatternInfo.totalBeats}</span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-2">
-                  Active: {loadedPatternInfo.componentsFound.join(', ')}
-                </div>
-              </div>
-            </div>}
-        </div>
-
-        {/* Detection Status */}
-        {isListening && detectedBeats.length > 0 && <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
-            <div className="text-sm font-medium text-accent mb-2">
-              Detected Beats ({detectedBeats.length})
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Last detected: {detectedBeats[detectedBeats.length - 1]?.type} 
-              (confidence: {Math.round((detectedBeats[detectedBeats.length - 1]?.confidence || 0) * 100)}%)
-            </div>
-          </div>}
-
-        {/* Main Pattern Content */}
-        <div className="space-y-6">
+  return (
+    <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
+      <div className="space-y-6">
           {/* Drum Components Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Available Drum Components */}
@@ -1189,5 +1135,6 @@ export const DrumMachine = () => {
             </button>
           )}
         </div>
-    </div>;
+    </div>
+  );
 };
