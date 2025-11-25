@@ -42,12 +42,12 @@ export const Toolbar = ({
           variant="ghost"
           size="icon"
           onClick={onPlayPause}
-          className="h-12 w-12 rounded-full bg-background/10 hover:bg-background/20"
+          className="h-12 w-12 rounded-full p-0 bg-transparent hover:opacity-80"
         >
           {isPlaying ? (
             <Pause className="h-6 w-6 text-foreground" />
           ) : (
-            <Play className="h-6 w-6 text-foreground" />
+            <img src="/icons/play-button-idle.png" alt="Play" className="h-12 w-12" />
           )}
         </Button>
 
