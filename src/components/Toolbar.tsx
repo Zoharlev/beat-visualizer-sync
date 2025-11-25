@@ -58,9 +58,10 @@ export const Toolbar = ({
           variant="ghost"
           size="icon"
           onClick={onRestart}
-          className="h-12 w-12 rounded-full p-0 bg-transparent"
+          className="h-12 w-12 rounded-full p-0 bg-transparent group relative"
         >
-          <img src="/icons/restart-button-idle.png" alt="Restart" className="h-10 w-10" />
+          <img src="/icons/restart-button-idle.png" alt="Restart" className="h-10 w-10 group-hover:opacity-0 group-active:opacity-0 transition-opacity duration-200" />
+          <img src="/icons/restart-button-active.png" alt="Restart Active" className="h-10 w-10 absolute inset-0 m-auto opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200" />
         </Button>
 
         {onClose && (
