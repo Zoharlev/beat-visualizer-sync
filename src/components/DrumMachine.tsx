@@ -5,7 +5,6 @@ import { DrumGrid } from "./DrumGrid";
 import { DrumNotation } from "./DrumNotation";
 import { PatternNavigation } from "./PatternNavigation";
 import { Toolbar } from "./Toolbar";
-import { BottomToolbar } from "./BottomToolbar";
 import { useToast } from "@/hooks/use-toast";
 import { useDrumListener } from "@/hooks/useDrumListener";
 import { useCSVPatternLoader } from "@/hooks/useCSVPatternLoader";
@@ -46,7 +45,6 @@ export const DrumMachine = () => {
   const [drumSoundsMuted, setDrumSoundsMuted] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>('');
   const [showControls, setShowControls] = useState(true);
-  const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -410,11 +408,6 @@ export const DrumMachine = () => {
   useEffect(() => {
     if (isPlaying) {
       timerRef.current = setInterval(() => {
-        // Update elapsed time from backing track
-        if (backingTrackRef.current && !isNaN(backingTrackRef.current.currentTime)) {
-          setElapsedTime(backingTrackRef.current.currentTime);
-        }
-
         setTimeRemaining(prev => {
           if (prev <= 1) {
             setIsPlaying(false);
@@ -879,23 +872,6 @@ export const DrumMachine = () => {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
-
-  // Format time with centiseconds for display (M:SS.CS)
-  const formatTimeWithCentiseconds = (seconds: number) => {
-    const totalMs = Math.floor(seconds * 100); // Convert to centiseconds
-    const minutes = Math.floor(totalMs / 6000);
-    const secs = Math.floor((totalMs % 6000) / 100);
-    const centisecs = totalMs % 100;
-    return `${minutes}:${secs.toString().padStart(2, '0')}.${centisecs.toString().padStart(2, '0')}`;
-  };
-
-  // Calculate elapsed time from backing track
-  const getElapsedTime = () => {
-    if (backingTrackRef.current && !isNaN(backingTrackRef.current.currentTime)) {
-      return backingTrackRef.current.currentTime;
-    }
-    return 0;
-  };
   const changePatternLength = (newLength: 8 | 16) => {
     setPatternLength(newLength);
     setCurrentStep(0);
@@ -1013,9 +989,63 @@ export const DrumMachine = () => {
       description: "Loaded pattern has been removed from memory"
     });
   };
-  return (
-    <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
-      <div className="space-y-6">
+  return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
+
+        {/* Drum Components Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Available Drum Components */}
+          <div className="hidden bg-card border border-border rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Available Drum Components</h3>
+            <div className="space-y-2">
+              {/* Drum Info */}
+              {Object.keys(displayPattern).filter(key => key !== 'length' && key !== 'subdivisions' && key !== 'offsets' && key !== 'sections').map(instrument => {
+            const steps = displayPattern[instrument] as boolean[];
+            if (!Array.isArray(steps)) return null;
+            const isActive = steps.some(Boolean);
+            const drumInfo = getDrumInfo(instrument);
+            return <div key={instrument} className={cn("flex items-center gap-3 p-2 rounded", isActive ? "bg-accent/10" : "opacity-60")}>
+                    <span className={cn("text-lg font-mono", drumInfo.color)}>{drumInfo.symbol}</span>
+                    <span className="text-sm font-medium">{drumInfo.name}</span>
+                    {isActive && <span className="ml-auto text-xs text-accent font-medium">
+                        {steps.filter(Boolean).length} beats
+                      </span>}
+                  </div>;
+          })}
+            </div>
+          </div>
+
+          {/* Loaded Pattern Info */}
+          {loadedPatternInfo && <div className="bg-card border border-border rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-3">Loaded Pattern Info</h3>
+              <div className="space-y-2">
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Components Found:</span>
+                  <span className="ml-2 font-medium">{loadedPatternInfo.componentsFound.length}</span>
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Total Beats:</span>
+                  <span className="ml-2 font-medium">{loadedPatternInfo.totalBeats}</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Active: {loadedPatternInfo.componentsFound.join(', ')}
+                </div>
+              </div>
+            </div>}
+        </div>
+
+        {/* Detection Status */}
+        {isListening && detectedBeats.length > 0 && <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4">
+            <div className="text-sm font-medium text-accent mb-2">
+              Detected Beats ({detectedBeats.length})
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Last detected: {detectedBeats[detectedBeats.length - 1]?.type} 
+              (confidence: {Math.round((detectedBeats[detectedBeats.length - 1]?.confidence || 0) * 100)}%)
+            </div>
+          </div>}
+
+        {/* Main Pattern Content */}
+        <div className="space-y-6">
           {/* Drum Components Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Available Drum Components */}
@@ -1095,33 +1125,154 @@ export const DrumMachine = () => {
           {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
 
           {/* Bottom Toolbar */}
-          <div className="mt-8">
-            <BottomToolbar
-              displayMode={displayMode}
-              onDisplayModeChange={(mode) => setDisplayMode(mode)}
-              drumSoundsMuted={drumSoundsMuted}
-              onDrumSoundsToggle={() => setDrumSoundsMuted(!drumSoundsMuted)}
-              metronomeEnabled={metronomeEnabled}
-              onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
-              backingTrackEnabled={backingTrackEnabled}
-              onBackingTrackToggle={() => {
-                const newState = !backingTrackEnabled;
-                setBackingTrackEnabled(newState);
-                if (backingTrackRef.current) {
-                  if (newState && isPlaying) {
-                    backingTrackRef.current.play().catch(console.error);
-                  } else {
-                    backingTrackRef.current.pause();
-                  }
+          <div className={cn(
+            "flex justify-between items-center mt-8 max-w-4xl mx-auto",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:fixed",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:bottom-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:left-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:right-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:z-50",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:bg-background/95",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:backdrop-blur-sm",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:p-4",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:mt-0",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:shadow-lg",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:transition-transform",
+            "[@media(max-height:500px)_and_(orientation:landscape)]:duration-300",
+            showControls 
+              ? "[@media(max-height:500px)_and_(orientation:landscape)]:translate-y-0" 
+              : "[@media(max-height:500px)_and_(orientation:landscape)]:translate-y-full"
+          )}>
+            {/* Left Side Controls */}
+            <div className="flex items-center gap-4">
+              {/* Section Indicator Chip */}
+              {currentSection && <div className="rounded-full px-4 py-2 bg-primary/20 border border-primary/30">
+                  <span className="text-sm font-medium text-primary">
+                    {currentSection}
+                  </span>
+                </div>}
+              
+              {/* Custom Metronome Toggle */}
+              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={() => setMetronomeEnabled(!metronomeEnabled)} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2", metronomeEnabled ? "bg-violet-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", metronomeEnabled ? "translate-x-5" : "translate-x-1")} />
+                </button>
+                
+                {/* Metronome Icon */}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: metronomeEnabled ? '#BFA5C4' : '#786C7D'
+            }}>
+                  <img src="/lovable-uploads/6591da94-1dfe-488c-93dc-4572ae65a891.png" alt="Metronome" className="w-8 h-8" />
+                </div>
+              </div>
+
+              {/* Drum Listener Toggle */}
+              <div className="hidden flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={handleListenerToggle} disabled={!isModelLoaded} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed", isListening ? "bg-red-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", isListening ? "translate-x-5" : "translate-x-1")} />
+                </button>
+                
+                {/* Microphone Icon */}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: isListening ? '#ff6b6b' : '#786C7D'
+            }}>
+                  {isListening ? <Mic className="h-4 w-4 text-white" /> : <MicOff className="h-4 w-4 text-white" />}
+                </div>
+                
+                {/* Audio Level Indicator */}
+                {isListening && <div className="w-8 h-4 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-400 transition-all duration-100 rounded-full" style={{
+                width: `${audioLevel * 100}%`
+              }} />
+                  </div>}
+              </div>
+
+              {/* Drum Mute Toggle */}
+              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={() => setDrumSoundsMuted(!drumSoundsMuted)} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2", drumSoundsMuted ? "bg-red-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", drumSoundsMuted ? "translate-x-5" : "translate-x-1")} />
+                </button>
+                
+                {/* Volume Icon */}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: drumSoundsMuted ? '#ff6b6b' : '#786C7D'
+            }}>
+                  {drumSoundsMuted ? <VolumeX className="h-4 w-4 text-white" /> : <Volume2 className="h-4 w-4 text-white" />}
+                </div>
+              </div>
+
+              {/* Backing Track Toggle */}
+              <div className="flex items-center gap-3 rounded-[20px] px-4 py-2" style={{
+            backgroundColor: '#333537'
+          }}>
+                <button onClick={() => {
+              const newState = !backingTrackEnabled;
+              setBackingTrackEnabled(newState);
+
+              // Immediately control the backing track audio
+              if (backingTrackRef.current) {
+                if (newState && isPlaying) {
+                  backingTrackRef.current.play().catch(console.error);
+                } else {
+                  backingTrackRef.current.pause();
                 }
-              }}
-              currentTime={formatTimeWithCentiseconds(elapsedTime)}
-              totalTime={formatTimeWithCentiseconds(backingTrackDuration)}
-              currentBpm={bpm}
-              maxBpm={123}
-              onBpmDecrease={() => changeBpm(-1)}
-              onBpmIncrease={() => changeBpm(1)}
-            />
+              }
+            }} className={cn("relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2", backingTrackEnabled ? "bg-blue-600" : "bg-gray-300")}>
+                  <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-lg", backingTrackEnabled ? "translate-x-5" : "translate-x-1")} />
+                </button>
+                
+                {/* Music Icon */}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{
+              backgroundColor: backingTrackEnabled ? '#3B82F6' : '#786C7D'
+            }}>
+                  <Music className="h-4 w-4 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Main Controls - Center/Right */}
+            <div className="flex items-center gap-4">
+              {/* Tempo Controls */}
+              <div className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg">
+                <Button variant="ghost" size="icon" onClick={() => changeBpm(-5)} className="h-8 w-8">
+                  <Minus className="h-4 w-4" />
+                </Button>
+                
+                <div className="flex items-center gap-2 px-3">
+                  
+                  
+                  <span className="text-2xl font-bold text-foreground mx-3">
+                    {bpm}
+                  </span>
+                </div>
+                
+                <Button variant="ghost" size="icon" onClick={() => changeBpm(5)} className="h-8 w-8">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Timer Display */}
+              <div className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg">
+                <div className="text-2xl font-bold text-foreground">
+                  {formatTime(timeRemaining)}
+                </div>
+              </div>
+
+              {/* Play Controls */}
+              <Button variant={isPlaying ? "default" : "secondary"} size="icon" onClick={togglePlay} className="h-12 w-12">
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+
+              <Button variant="ghost" size="icon" onClick={reset} className="h-12 w-12">
+                <RotateCcw className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Show Controls Toggle Button - Only visible on mobile landscape when controls are hidden */}
@@ -1135,6 +1286,5 @@ export const DrumMachine = () => {
             </button>
           )}
         </div>
-    </div>
-  );
+    </div>;
 };
