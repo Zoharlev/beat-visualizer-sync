@@ -10,6 +10,8 @@ import metronomeIconActive from "@/assets/metronome-icon-active.png";
 import metronomeIconIdle from "@/assets/metronome-icon-idle.png";
 import backingTrackIconActive from "@/assets/backing-track-icon-active.png";
 import backingTrackIconIdle from "@/assets/backing-track-icon-idle.png";
+import notationIconActive from "@/assets/notation-icon-active.png";
+import notationIconIdle from "@/assets/notation-icon-idle.png";
 
 interface BottomToolbarProps {
   displayMode: "grid" | "notation";
@@ -59,14 +61,13 @@ export const BottomToolbar = ({
             variant="ghost"
             size="icon"
             onClick={() => onDisplayModeChange("notation")}
-            className={cn(
-              "h-12 w-12 rounded-full p-0 transition-all",
-              displayMode === "notation" 
-                ? "bg-[#6764db] hover:bg-[#6764db]/90" 
-                : "bg-[#2a3240] hover:bg-[#353d4d]"
-            )}
+            className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
           >
-            <Music className="h-6 w-6 text-white" />
+            <img 
+              src={displayMode === "notation" ? notationIconActive : notationIconIdle} 
+              alt="Notation view" 
+              className="h-6 w-6" 
+            />
           </Button>
           <Button
             variant="ghost"
