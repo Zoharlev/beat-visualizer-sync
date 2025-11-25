@@ -263,7 +263,7 @@ export const DrumGrid = ({
           };
           
           return (
-            <div key={drumKey} className="flex items-center mb-px group">
+            <div key={drumKey} className="flex items-center group">
               {/* Drum Label */}
               <div className="w-20 flex items-center gap-2 pr-4">
                 <span className="text-lg font-mono text-accent">{drumInfo.symbol}</span>
@@ -284,7 +284,7 @@ export const DrumGrid = ({
                         key={stepIndex} 
                         onClick={() => onStepToggle(drumKey, stepIndex)} 
                         className={cn(
-                          "flex-1 h-6 border-r border-grid-line last:border-r-0 transition-all duration-200",
+                          "flex-1 min-w-[38px] h-[38px] p-0 border-r border-grid-line last:border-r-0 transition-all duration-200",
                           "flex items-center justify-center group-hover:bg-muted/20",
                           stepIndex === currentStep && "bg-playhead/10",
                           stepIndex % 2 === 0 && "border-r-2 border-primary/30"
