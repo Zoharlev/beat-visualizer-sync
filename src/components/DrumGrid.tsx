@@ -152,7 +152,7 @@ export const DrumGrid = ({
 
         {/* Playhead - Fixed position */}
         <div className="absolute top-0 bottom-0 w-1 bg-playhead z-20 pointer-events-none" style={{
-          left: `calc(3.5rem + 0.5rem + ((100% - 3.5rem - 1rem) * ${visibleSteps > 0 ? playheadIndex / visibleSteps : 0}))`,
+          left: `calc(5rem + 1.5rem + ((100% - 5rem - 3rem) * ${visibleSteps > 0 ? playheadIndex / visibleSteps : 0}))`,
           boxShadow: "0 0 20px hsl(var(--playhead) / 0.6)",
           transition: "left 75ms ease-out"
         }} />
@@ -164,7 +164,7 @@ export const DrumGrid = ({
           {/* Beat Numbers */}
         <div className="flex mb-4 flex-col gap-1">
           <div className="flex">
-            <div className="w-14 md:w-20 text-xs text-muted-foreground/50">Step#</div>
+            <div className="w-20 text-xs text-muted-foreground/50">Step#</div>
             {Array.from({
                 length: visibleSteps
               }, (_, i) => {
@@ -175,7 +175,7 @@ export const DrumGrid = ({
               })}
           </div>
           <div className="flex">
-            <div className="w-14 md:w-20 text-xs text-muted-foreground/50">Count</div>
+            <div className="w-20 text-xs text-muted-foreground/50">Count</div>
             {Array.from({
                 length: visibleSteps
               }, (_, i) => {
@@ -249,9 +249,9 @@ export const DrumGrid = ({
             };
             return <div key={drumKey} className="flex items-center group">
               {/* Drum Label */}
-              <div className="w-14 md:w-20 flex items-center pr-2 md:pr-4 gap-0">
-                <span className="text-base md:text-lg font-mono text-accent w-3 md:w-4 flex-shrink-0 text-left">{drumInfo.symbol}</span>
-                <span className="text-foreground flex-1 truncate text-[10px] md:text-xs text-left font-normal">{drumInfo.name}</span>
+              <div className="w-20 flex items-center pr-4 gap-0">
+                <span className="text-lg font-mono text-accent w-4 flex-shrink-0 text-left">{drumInfo.symbol}</span>
+                <span className="text-foreground flex-1 truncate text-xs text-left font-normal">{drumInfo.name}</span>
               </div>
 
               {/* Grid Line */}
