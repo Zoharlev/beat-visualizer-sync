@@ -52,7 +52,7 @@ export const BottomToolbar = ({
   onBpmChange,
 }: BottomToolbarProps) => {
   return (
-    <div className="w-full h-[70px] bg-[#1f2733] px-6 flex items-center justify-between rounded-3xl">
+    <div className="w-full h-[55px] bg-[#1f2733] px-6 flex items-center justify-between rounded-3xl">
       {/* Left Side Controls */}
       <div className="flex items-center gap-4">
         {/* Grid/Notation Toggle */}
