@@ -2,6 +2,7 @@ import { Music, Grid3x3, FileText, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import gridIconActive from "@/assets/grid-icon-active.png";
 
 interface BottomToolbarProps {
   displayMode: "grid" | "notation";
@@ -71,7 +72,11 @@ export const BottomToolbar = ({
                 : "bg-[#2a3240] hover:bg-[#353d4d]"
             )}
           >
-            <Grid3x3 className="h-6 w-6 text-white" />
+            {displayMode === "grid" ? (
+              <img src={gridIconActive} alt="Grid view" className="h-6 w-6" />
+            ) : (
+              <Grid3x3 className="h-6 w-6 text-white" />
+            )}
           </Button>
         </div>
 
