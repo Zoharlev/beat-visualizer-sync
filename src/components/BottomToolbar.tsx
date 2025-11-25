@@ -66,12 +66,7 @@ export const BottomToolbar = ({
             variant="ghost"
             size="icon"
             onClick={() => onDisplayModeChange("grid")}
-            className={cn(
-              "h-12 w-12 rounded-full p-0 transition-all",
-              displayMode === "grid" 
-                ? "bg-[#6764db] hover:bg-[#6764db]/90" 
-                : "bg-[#2a3240] hover:bg-[#353d4d]"
-            )}
+            className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
           >
             {displayMode === "grid" ? (
               <img src={gridIconActive} alt="Grid view" className="h-6 w-6" />
