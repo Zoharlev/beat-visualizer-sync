@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import gridIconActive from "@/assets/grid-icon-active.png";
 import gridIconIdle from "@/assets/grid-icon-idle.png";
 import drumIconActive from "@/assets/drum-icon-active.png";
+import drumIconIdle from "@/assets/drum-icon-idle.png";
 
 interface BottomToolbarProps {
   displayMode: "grid" | "notation";
@@ -84,22 +85,14 @@ export const BottomToolbar = ({
           variant="ghost"
           size="icon"
           onClick={onDrumSoundsToggle}
-          className={cn(
-            "h-12 w-12 rounded-full p-0 transition-all",
-            drumSoundsEnabled 
-              ? "bg-[#6764db] hover:bg-[#6764db]/90" 
-              : "bg-[#2a3240] hover:bg-[#353d4d]"
-          )}
+          className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Drum Sounds"
         >
-          {drumSoundsEnabled ? (
-            <img src={drumIconActive} alt="Drum sounds" className="h-8 w-8" />
-          ) : (
-            <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-              <path d="M12 6v12M6 12h12" strokeWidth="2"/>
-            </svg>
-          )}
+          <img 
+            src={drumSoundsEnabled ? drumIconActive : drumIconIdle} 
+            alt="Drum sounds" 
+            className="h-8 w-8" 
+          />
         </Button>
 
         <Button
