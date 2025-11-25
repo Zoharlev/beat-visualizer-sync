@@ -85,7 +85,7 @@ export const BottomToolbar = ({
           variant="ghost"
           size="icon"
           onClick={onDrumSoundsToggle}
-          className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
+          className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Drum Sounds"
         >
           <img 
@@ -99,12 +99,7 @@ export const BottomToolbar = ({
           variant="ghost"
           size="icon"
           onClick={onMetronomeToggle}
-          className={cn(
-            "h-12 w-12 rounded-full p-0 transition-all",
-            metronomeEnabled 
-              ? "bg-[#6764db] hover:bg-[#6764db]/90" 
-              : "bg-[#2a3240] hover:bg-[#353d4d]"
-          )}
+          className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Metronome"
         >
           <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -117,12 +112,7 @@ export const BottomToolbar = ({
           variant="ghost"
           size="icon"
           onClick={onBackingTrackToggle}
-          className={cn(
-            "h-12 w-12 rounded-full p-0 transition-all",
-            backingTrackEnabled 
-              ? "bg-[#6764db] hover:bg-[#6764db]/90" 
-              : "bg-[#2a3240] hover:bg-[#353d4d]"
-          )}
+          className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Backing Track"
         >
           <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
