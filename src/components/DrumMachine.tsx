@@ -991,7 +991,7 @@ export const DrumMachine = () => {
   };
   return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
         {/* Top Toolbar */}
-        <div className="mb-6">
+        <div className="mb-4">
           <Toolbar
             songName="Sweet Child o Mine"
             currentSection={currentSection || "Intro 2"}
