@@ -1126,6 +1126,25 @@ export const DrumMachine = () => {
           {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
 
           {/* Bottom Toolbar */}
+          <div className="mt-4">
+            <BottomToolbar
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
+              drumSoundsEnabled={!drumSoundsMuted}
+              onDrumSoundsToggle={() => setDrumSoundsMuted(!drumSoundsMuted)}
+              metronomeEnabled={metronomeEnabled}
+              onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
+              backingTrackEnabled={backingTrackEnabled}
+              onBackingTrackToggle={() => setBackingTrackEnabled(!backingTrackEnabled)}
+              currentTime={backingTrackDuration - timeRemaining}
+              duration={backingTrackDuration}
+              bpm={bpm}
+              maxBpm={123}
+              onBpmChange={(delta) => changeBpm(delta)}
+            />
+          </div>
+
+          {/* Bottom Controls */}
           <div className={cn(
             "flex justify-between items-center mt-8 max-w-4xl mx-auto",
             "[@media(max-height:500px)_and_(orientation:landscape)]:fixed",
@@ -1286,25 +1305,6 @@ export const DrumMachine = () => {
               <Settings className="h-5 w-5" />
             </button>
           )}
-
-          {/* Bottom Toolbar */}
-          <div className="mt-4">
-            <BottomToolbar
-              displayMode={displayMode}
-              onDisplayModeChange={setDisplayMode}
-              drumSoundsEnabled={!drumSoundsMuted}
-              onDrumSoundsToggle={() => setDrumSoundsMuted(!drumSoundsMuted)}
-              metronomeEnabled={metronomeEnabled}
-              onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)}
-              backingTrackEnabled={backingTrackEnabled}
-              onBackingTrackToggle={() => setBackingTrackEnabled(!backingTrackEnabled)}
-              currentTime={backingTrackDuration - timeRemaining}
-              duration={backingTrackDuration}
-              bpm={bpm}
-              maxBpm={123}
-              onBpmChange={(delta) => setBpm(Math.max(40, Math.min(200, bpm + delta)))}
-            />
-          </div>
         </div>
     </div>;
 };
