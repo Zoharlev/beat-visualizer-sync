@@ -91,7 +91,7 @@ export const BottomToolbar = ({
           <img 
             src={drumSoundsEnabled ? drumIconActive : drumIconIdle} 
             alt="Drum sounds" 
-            className="h-8 w-8" 
+            className="h-10 w-10" 
           />
         </Button>
 
@@ -102,7 +102,7 @@ export const BottomToolbar = ({
           className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Metronome"
         >
-          <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <svg className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M12 3L4 21h16L12 3z" strokeWidth="2" strokeLinejoin="round"/>
             <path d="M12 8v8" strokeWidth="2"/>
           </svg>
@@ -115,7 +115,7 @@ export const BottomToolbar = ({
           className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Backing Track"
         >
-          <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <svg className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18V5l12-2v13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <circle cx="6" cy="18" r="3" strokeWidth="2"/>
             <circle cx="18" cy="16" r="3" strokeWidth="2"/>
