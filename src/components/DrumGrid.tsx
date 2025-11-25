@@ -169,7 +169,7 @@ export const DrumGrid = ({
                 length: visibleSteps
               }, (_, i) => {
                 const stepIndex = startStep + i;
-                return <div key={`step-${stepIndex}`} className="flex-1 text-center text-[10px] font-mono text-muted-foreground/40">
+                return <div key={`step-${stepIndex}`} className="flex-1 min-w-[38px] text-center text-[10px] font-mono text-muted-foreground/40">
                   {stepIndex}
                 </div>;
               })}
@@ -218,7 +218,7 @@ export const DrumGrid = ({
                     textStyle = "text-muted-foreground/70 font-medium";
                   }
                 }
-                return <div key={stepIndex} className={cn("flex-1 text-center text-sm font-mono", textStyle)}>
+                return <div key={stepIndex} className={cn("flex-1 min-w-[38px] text-center text-sm font-mono", textStyle)}>
                   {displayText}
                 </div>;
               })}
