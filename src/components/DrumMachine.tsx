@@ -4,6 +4,7 @@ import { Play, Pause, RotateCcw, Settings, Plus, Minus, Mic, MicOff, Music, Volu
 import { DrumGrid } from "./DrumGrid";
 import { DrumNotation } from "./DrumNotation";
 import { PatternNavigation } from "./PatternNavigation";
+import { Toolbar } from "./Toolbar";
 import { useToast } from "@/hooks/use-toast";
 import { useDrumListener } from "@/hooks/useDrumListener";
 import { useCSVPatternLoader } from "@/hooks/useCSVPatternLoader";
@@ -989,12 +990,14 @@ export const DrumMachine = () => {
     });
   };
   return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
-        {/* Pattern Instructions */}
-        <div className="text-center mb-6">
-          <p className="text-muted-foreground text-lg">
-            Practice Name
-          </p>
-        </div>
+        {/* Top Toolbar */}
+        <Toolbar
+          songName="Sweet Child o Mine"
+          currentSection={currentSection || "Intro 2"}
+          isPlaying={isPlaying}
+          onPlayPause={togglePlay}
+          onRestart={reset}
+        />
 
         {/* Drum Components Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
