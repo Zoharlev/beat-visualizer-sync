@@ -143,31 +143,6 @@ export const DrumGrid = ({
   // Calculate playhead position within the current visible window
   const playheadIndex = Math.min(Math.max(currentStep - startStep, 0), Math.max(visibleSteps - 1, 0));
   return <div className="space-y-6">
-      {/* Controls Container */}
-      <div className="controls-container">
-        <div className="flex items-center justify-end gap-2">
-        <Button
-          variant={isPlaying ? "default" : "ghost"}
-          onClick={onTogglePlay}
-          className={cn(
-            "h-12 px-6 rounded-[20px] text-xs",
-            isPlaying 
-              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-              : "bg-primary/10 hover:bg-primary/20"
-          )}
-        >
-          {isPlaying ? "STOP" : "PREVIEW"}
-        </Button>
-        <Button variant="outline" size="icon">
-          <img 
-            src="/lovable-uploads/fbd529ea-6eab-43ce-8d5d-274c34542d99.png" 
-            alt="Menu"
-            className="w-4 h-4"
-          />
-        </Button>
-        </div>
-      </div>
-
       {/* Drum Grid Container */}
       <div className="drum-grid-container">
         <div className="relative bg-card rounded-lg p-6 shadow-elevated overflow-hidden">

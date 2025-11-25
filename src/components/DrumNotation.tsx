@@ -417,16 +417,6 @@ export const DrumNotation = React.memo(({
   const scrollTransform = `translateX(${-scrollOffset * STEP_WIDTH}px)`;
 
   return <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex items-center justify-end gap-2">
-        <Button variant={isPlaying ? "default" : "ghost"} onClick={onTogglePlay} className={cn("h-12 px-6 rounded-[20px] text-xs", isPlaying ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 hover:bg-primary/20")}>
-          {isPlaying ? "STOP" : "PREVIEW"}
-        </Button>
-        <Button variant="outline" size="icon">
-          <img src="/lovable-uploads/fbd529ea-6eab-43ce-8d5d-274c34542d99.png" alt="Menu" className="w-4 h-4" />
-        </Button>
-      </div>
-
       {/* Notation Container */}
       <div className="relative bg-card rounded-lg p-8 shadow-elevated">
         {/* Legend */}
