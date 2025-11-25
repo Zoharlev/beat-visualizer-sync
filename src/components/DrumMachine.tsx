@@ -9,6 +9,7 @@ import { BottomToolbar } from "./BottomToolbar";
 import { useToast } from "@/hooks/use-toast";
 import { useDrumListener } from "@/hooks/useDrumListener";
 import { useCSVPatternLoader } from "@/hooks/useCSVPatternLoader";
+import { useIsLandscape } from "@/hooks/use-landscape";
 import { cn } from "@/lib/utils";
 interface DrumPattern {
   [key: string]: boolean[] | number | string[] | number[];
@@ -46,6 +47,7 @@ export const DrumMachine = () => {
   const [drumSoundsMuted, setDrumSoundsMuted] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>('');
   const [showControls, setShowControls] = useState(true);
+  const isLandscape = useIsLandscape();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -59,9 +61,46 @@ export const DrumMachine = () => {
   const crashCymbalBufferRef = useRef<AudioBuffer | null>(null);
   const rideCymbalBufferRef = useRef<AudioBuffer | null>(null);
   const backingTrackRef = useRef<HTMLAudioElement | null>(null);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
+  // Auto-hide controls in landscape mode after 3 seconds of inactivity
+  useEffect(() => {
+    if (!isLandscape) {
+      setShowControls(true);
+      return;
+    }
+
+    const resetTimeout = () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      
+      setShowControls(true);
+      
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    };
+
+    resetTimeout();
+
+    const handleActivity = () => {
+      resetTimeout();
+    };
+
+    window.addEventListener("touchstart", handleActivity);
+    window.addEventListener("touchmove", handleActivity);
+    window.addEventListener("click", handleActivity);
+
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      window.removeEventListener("touchstart", handleActivity);
+      window.removeEventListener("touchmove", handleActivity);
+      window.removeEventListener("click", handleActivity);
+    };
+  }, [isLandscape]);
 
   // Drum listener hook for microphone beat detection
   const {
@@ -1108,7 +1147,11 @@ export const DrumMachine = () => {
           </div>
 
           {/* Toolbar */}
-          <div className="mb-4">
+          <div className={cn(
+            "mb-4 transition-all duration-300",
+            isLandscape && "fixed top-2 left-2 right-2 z-50 mb-0",
+            isLandscape && !showControls && "opacity-0 pointer-events-none -translate-y-full"
+          )}>
             <Toolbar
               songName="Sweet Child o Mine"
               currentSection={currentSection || "Intro 2"}
@@ -1126,7 +1169,11 @@ export const DrumMachine = () => {
           {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={20} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
 
           {/* Bottom Toolbar */}
-          <div className="mt-4">
+          <div className={cn(
+            "mt-4 transition-all duration-300",
+            isLandscape && "fixed bottom-2 left-2 right-2 z-50 mt-0",
+            isLandscape && !showControls && "opacity-0 pointer-events-none translate-y-full"
+          )}>
             <BottomToolbar
               displayMode={displayMode}
               onDisplayModeChange={setDisplayMode}
@@ -1145,10 +1192,10 @@ export const DrumMachine = () => {
           </div>
 
           {/* Show Controls Toggle Button - Only visible on mobile landscape when controls are hidden */}
-          {!showControls && (
+          {isLandscape && !showControls && (
             <button
               onClick={() => setShowControls(true)}
-              className="hidden [@media(max-height:500px)_and_(orientation:landscape)]:block fixed bottom-4 right-4 z-50 bg-primary/90 hover:bg-primary text-primary-foreground rounded-full p-3 shadow-lg animate-fade-in"
+              className="fixed top-1/2 right-4 -translate-y-1/2 z-50 bg-primary/90 hover:bg-primary text-primary-foreground rounded-full p-3 shadow-lg animate-fade-in"
               aria-label="Show controls"
             >
               <Settings className="h-5 w-5" />
