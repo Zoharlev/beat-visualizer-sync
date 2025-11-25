@@ -20,7 +20,7 @@ export const Toolbar = ({
   onClose
 }: ToolbarProps) => {
   return (
-    <div className="w-full bg-[#2C3440] px-6 py-4 flex items-center justify-between rounded-t-3xl">
+    <div className="w-full bg-[#1f2733] px-6 py-4 flex items-center justify-between rounded-3xl">
       {/* Left: Song Name */}
       <div className="flex-1">
         <h1 className="text-foreground text-lg font-medium">{songName}</h1>
