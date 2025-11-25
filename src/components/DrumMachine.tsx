@@ -991,13 +991,15 @@ export const DrumMachine = () => {
   };
   return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
         {/* Top Toolbar */}
-        <Toolbar
-          songName="Sweet Child o Mine"
-          currentSection={currentSection || "Intro 2"}
-          isPlaying={isPlaying}
-          onPlayPause={togglePlay}
-          onRestart={reset}
-        />
+        <div className="mb-6">
+          <Toolbar
+            songName="Sweet Child o Mine"
+            currentSection={currentSection || "Intro 2"}
+            isPlaying={isPlaying}
+            onPlayPause={togglePlay}
+            onRestart={reset}
+          />
+        </div>
 
         {/* Drum Components Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
