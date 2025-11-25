@@ -8,6 +8,8 @@ import drumIconActive from "@/assets/drum-icon-active.png";
 import drumIconIdle from "@/assets/drum-icon-idle.png";
 import metronomeIconActive from "@/assets/metronome-icon-active.png";
 import metronomeIconIdle from "@/assets/metronome-icon-idle.png";
+import backingTrackIconActive from "@/assets/backing-track-icon-active.png";
+import backingTrackIconIdle from "@/assets/backing-track-icon-idle.png";
 
 interface BottomToolbarProps {
   displayMode: "grid" | "notation";
@@ -118,11 +120,11 @@ export const BottomToolbar = ({
           className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Backing Track"
         >
-          <svg className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M9 18V5l12-2v13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="6" cy="18" r="3" strokeWidth="2"/>
-            <circle cx="18" cy="16" r="3" strokeWidth="2"/>
-          </svg>
+          <img 
+            src={backingTrackEnabled ? backingTrackIconActive : backingTrackIconIdle} 
+            alt="Backing track" 
+            className="h-10 w-10" 
+          />
         </Button>
       </div>
 
