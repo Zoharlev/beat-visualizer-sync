@@ -6,6 +6,8 @@ import gridIconActive from "@/assets/grid-icon-active.png";
 import gridIconIdle from "@/assets/grid-icon-idle.png";
 import drumIconActive from "@/assets/drum-icon-active.png";
 import drumIconIdle from "@/assets/drum-icon-idle.png";
+import metronomeIconActive from "@/assets/metronome-icon-active.png";
+import metronomeIconIdle from "@/assets/metronome-icon-idle.png";
 
 interface BottomToolbarProps {
   displayMode: "grid" | "notation";
@@ -102,10 +104,11 @@ export const BottomToolbar = ({
           className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
           title="Metronome"
         >
-          <svg className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 3L4 21h16L12 3z" strokeWidth="2" strokeLinejoin="round"/>
-            <path d="M12 8v8" strokeWidth="2"/>
-          </svg>
+          <img 
+            src={metronomeEnabled ? metronomeIconActive : metronomeIconIdle} 
+            alt="Metronome" 
+            className="h-10 w-10" 
+          />
         </Button>
 
         <Button
