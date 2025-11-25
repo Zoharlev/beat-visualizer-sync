@@ -422,14 +422,6 @@ export const DrumNotation = React.memo(({
         <Button variant={isPlaying ? "default" : "ghost"} onClick={onTogglePlay} className={cn("h-12 px-6 rounded-[20px] text-xs", isPlaying ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 hover:bg-primary/20")}>
           {isPlaying ? "STOP" : "PREVIEW"}
         </Button>
-        <Button variant="outline" onClick={onClearPattern} className="flex items-center gap-2">
-          <Trash2 className="h-4 w-4" />
-          Clear
-        </Button>
-        {onClearLoadedPattern && hasLoadedPattern && <Button onClick={onClearLoadedPattern} variant="outline" className="flex items-center gap-2">
-            <RotateCcw className="h-4 w-4" />
-            Clear Loaded
-          </Button>}
         <Button variant="outline" size="icon">
           <img src="/lovable-uploads/fbd529ea-6eab-43ce-8d5d-274c34542d99.png" alt="Menu" className="w-4 h-4" />
         </Button>
