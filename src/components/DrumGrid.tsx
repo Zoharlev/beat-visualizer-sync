@@ -144,7 +144,7 @@ export const DrumGrid = ({
   return <div className="space-y-6">
       {/* Drum Grid Container */}
       <div className="drum-grid-container">
-        <div className="relative bg-card rounded-lg p-6 shadow-elevated overflow-hidden">
+        <div className="relative bg-card rounded-lg p-3 sm:p-6 shadow-elevated overflow-hidden max-w-full">
         {/* Step Position Indicator */}
         <div className="hidden text-xs text-muted-foreground text-center mb-2">
           Step {currentStep + 1} / {pattern.length}
