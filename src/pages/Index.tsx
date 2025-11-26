@@ -2,7 +2,7 @@ import { DrumMachine } from "@/components/DrumMachine";
 
 const Index = () => {
   return (
-    <div>
+    <div className="w-full overflow-x-hidden max-w-[100vw]">
       <DrumMachine />
     </div>
   );
