@@ -1033,7 +1033,10 @@ export const DrumMachine = () => {
       description: "Loaded pattern has been removed from memory"
     });
   };
-  return <div className="min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto">
+  return <div className={cn(
+    "min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto",
+    isLandscape && "pt-20 pb-24"
+  )}>
       <RotationPrompt />
 
         {/* Drum Components Info */}
