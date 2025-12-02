@@ -27,6 +27,7 @@ interface BottomToolbarProps {
   bpm: number;
   maxBpm: number;
   onBpmChange: (delta: number) => void;
+  isLandscape?: boolean;
 }
 
 const formatTime = (seconds: number) => {
@@ -50,53 +51,66 @@ export const BottomToolbar = ({
   bpm,
   maxBpm,
   onBpmChange,
+  isLandscape = false
 }: BottomToolbarProps) => {
   return (
-    <div className="w-full h-[55px] bg-[#1f2733]/60 px-6 flex items-center justify-between rounded-3xl backdrop-blur-sm">
+    <div className={cn(
+      "w-full h-[55px] bg-[#1f2733]/60 px-6 flex items-center justify-between rounded-3xl backdrop-blur-sm",
+      isLandscape && "h-[40px] px-3 rounded-xl"
+    )}>
       {/* Left Side Controls */}
-      <div className="flex items-center gap-4">
+      <div className={cn("flex items-center gap-4", isLandscape && "gap-2")}>
         {/* Grid/Notation Toggle */}
-        <div className="flex items-center gap-2">
+        <div className={cn("flex items-center gap-2", isLandscape && "gap-1")}>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onDisplayModeChange("notation")}
-            className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
+            className={cn(
+              "h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent",
+              isLandscape && "h-8 w-8"
+            )}
           >
             <img 
               src={displayMode === "notation" ? notationIconActive : notationIconIdle} 
               alt="Notation view" 
-              className="h-6 w-6" 
+              className={cn("h-6 w-6", isLandscape && "h-5 w-5")} 
             />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onDisplayModeChange("grid")}
-            className="h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent"
+            className={cn(
+              "h-12 w-12 p-0 transition-all bg-transparent hover:bg-transparent",
+              isLandscape && "h-8 w-8"
+            )}
           >
             <img 
               src={displayMode === "grid" ? gridIconActive : gridIconIdle} 
               alt="Grid view" 
-              className="h-6 w-6" 
+              className={cn("h-6 w-6", isLandscape && "h-5 w-5")} 
             />
           </Button>
         </div>
 
-        <Separator orientation="vertical" className="h-8 bg-[#3a4252]" />
+        <Separator orientation="vertical" className={cn("h-8 bg-[#3a4252]", isLandscape && "h-5")} />
 
         {/* Sound Toggles */}
         <Button
           variant="ghost"
           size="icon"
           onClick={onDrumSoundsToggle}
-          className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
+          className={cn(
+            "h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent",
+            isLandscape && "h-7 w-7"
+          )}
           title="Drum Sounds"
         >
           <img 
             src={drumSoundsEnabled ? drumIconActive : drumIconIdle} 
             alt="Drum sounds" 
-            className="h-10 w-10" 
+            className={cn("h-10 w-10", isLandscape && "h-7 w-7")} 
           />
         </Button>
 
@@ -104,13 +118,16 @@ export const BottomToolbar = ({
           variant="ghost"
           size="icon"
           onClick={onMetronomeToggle}
-          className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
+          className={cn(
+            "h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent",
+            isLandscape && "h-7 w-7"
+          )}
           title="Metronome"
         >
           <img 
             src={metronomeEnabled ? metronomeIconActive : metronomeIconIdle} 
             alt="Metronome" 
-            className="h-10 w-10" 
+            className={cn("h-10 w-10", isLandscape && "h-7 w-7")} 
           />
         </Button>
 
@@ -118,37 +135,46 @@ export const BottomToolbar = ({
           variant="ghost"
           size="icon"
           onClick={onBackingTrackToggle}
-          className="h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent"
+          className={cn(
+            "h-10 w-10 p-0 transition-all bg-transparent hover:bg-transparent",
+            isLandscape && "h-7 w-7"
+          )}
           title="Backing Track"
         >
           <img 
             src={backingTrackEnabled ? backingTrackIconActive : backingTrackIconIdle} 
             alt="Backing track" 
-            className="h-10 w-10" 
+            className={cn("h-10 w-10", isLandscape && "h-7 w-7")} 
           />
         </Button>
       </div>
 
       {/* Right Side Controls */}
-      <div className="flex items-center gap-6">
+      <div className={cn("flex items-center gap-6", isLandscape && "gap-3")}>
         {/* Timer */}
-        <div className="text-white font-mono text-lg">
+        <div className={cn("text-white font-mono text-lg", isLandscape && "text-sm")}>
           {formatTime(currentTime)}<span className="text-[#6b7280]">/{formatTime(duration)}</span>
         </div>
 
         {/* BPM Controller */}
-        <div className="flex items-center gap-3">
+        <div className={cn("flex items-center gap-3", isLandscape && "gap-1")}>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onBpmChange(-1)}
-            className="h-8 w-8 rounded-md bg-[#2a3240] hover:bg-[#353d4d] p-0"
+            className={cn(
+              "h-8 w-8 rounded-md bg-[#2a3240] hover:bg-[#353d4d] p-0",
+              isLandscape && "h-6 w-6"
+            )}
           >
-            <Minus className="h-4 w-4 text-white" />
+            <Minus className={cn("h-4 w-4 text-white", isLandscape && "h-3 w-3")} />
           </Button>
           
-          <div className="text-white font-mono text-lg min-w-[100px] text-center">
-            <span className="text-2xl font-bold">{bpm}</span>
+          <div className={cn(
+            "text-white font-mono text-lg min-w-[100px] text-center",
+            isLandscape && "text-sm min-w-[70px]"
+          )}>
+            <span className={cn("text-2xl font-bold", isLandscape && "text-lg")}>{bpm}</span>
             <span className="text-[#6b7280]">/{maxBpm}</span>
           </div>
 
@@ -156,9 +182,12 @@ export const BottomToolbar = ({
             variant="ghost"
             size="icon"
             onClick={() => onBpmChange(1)}
-            className="h-8 w-8 rounded-md bg-[#2a3240] hover:bg-[#353d4d] p-0"
+            className={cn(
+              "h-8 w-8 rounded-md bg-[#2a3240] hover:bg-[#353d4d] p-0",
+              isLandscape && "h-6 w-6"
+            )}
           >
-            <Plus className="h-4 w-4 text-white" />
+            <Plus className={cn("h-4 w-4 text-white", isLandscape && "h-3 w-3")} />
           </Button>
         </div>
       </div>

@@ -1035,7 +1035,7 @@ export const DrumMachine = () => {
   };
   return <div className={cn(
     "min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto",
-    isLandscape && "h-screen max-h-screen overflow-hidden pt-16 pb-20 p-1"
+    isLandscape && "h-[100dvh] max-h-[100dvh] overflow-hidden p-0"
   )}>
       <RotationPrompt />
 
@@ -1160,7 +1160,7 @@ export const DrumMachine = () => {
           {/* Toolbar */}
           <div className={cn(
             "mb-4 transition-all duration-300",
-            isLandscape && "fixed top-2 left-2 right-2 z-50 mb-0",
+            isLandscape && "fixed top-1 left-1 right-1 z-50 mb-0",
             isLandscape && !showControls && "opacity-0 pointer-events-none -translate-y-full"
           )}>
             <Toolbar
@@ -1173,18 +1173,19 @@ export const DrumMachine = () => {
                 // TODO: Define close functionality
                 console.log('Close button clicked');
               }}
+              isLandscape={isLandscape}
             />
           </div>
 
           {/* Drum Display */}
-          <div className={cn(isLandscape && "flex-1 overflow-hidden")}>
+          <div className={cn(isLandscape && "flex-1 overflow-hidden h-[calc(100dvh-96px)] pt-11 pb-11 px-1")}>
             {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={visibleStepsCount} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} isLandscape={isLandscape} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={visibleStepsCount} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
           </div>
 
           {/* Bottom Toolbar */}
           <div className={cn(
             "mt-4 transition-all duration-300",
-            isLandscape && "fixed bottom-2 left-2 right-2 z-50 mt-0",
+            isLandscape && "fixed bottom-1 left-1 right-1 z-50 mt-0",
             isLandscape && !showControls && "opacity-0 pointer-events-none translate-y-full"
           )}>
             <BottomToolbar
@@ -1201,6 +1202,7 @@ export const DrumMachine = () => {
               bpm={bpm}
               maxBpm={123}
               onBpmChange={(delta) => changeBpm(delta)}
+              isLandscape={isLandscape}
             />
           </div>
 
