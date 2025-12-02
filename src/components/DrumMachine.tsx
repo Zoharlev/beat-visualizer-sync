@@ -1035,7 +1035,7 @@ export const DrumMachine = () => {
   };
   return <div className={cn(
     "min-h-screen bg-background p-2 md:p-6 max-w-full md:max-w-6xl md:mx-auto",
-    isLandscape && "pt-20 pb-24"
+    isLandscape && "h-screen max-h-screen overflow-hidden pt-16 pb-20 p-1"
   )}>
       <RotationPrompt />
 
@@ -1093,7 +1093,10 @@ export const DrumMachine = () => {
           </div>}
 
         {/* Main Pattern Content */}
-        <div className="space-y-6">
+        <div className={cn(
+          "space-y-6",
+          isLandscape && "h-full flex flex-col space-y-2"
+        )}>
           {/* Drum Components Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Available Drum Components */}
@@ -1174,7 +1177,9 @@ export const DrumMachine = () => {
           </div>
 
           {/* Drum Display */}
-          {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={visibleStepsCount} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={visibleStepsCount} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
+          <div className={cn(isLandscape && "flex-1 overflow-hidden")}>
+            {displayMode === 'grid' ? <DrumGrid pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={visibleStepsCount} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} isLandscape={isLandscape} /> : <DrumNotation pattern={displayPattern} currentStep={currentStep} scrollOffset={scrollOffset} visibleStepsCount={visibleStepsCount} onStepToggle={toggleStep} onClearPattern={clearPattern} metronomeEnabled={metronomeEnabled} onMetronomeToggle={() => setMetronomeEnabled(!metronomeEnabled)} onTogglePlay={togglePlay} isPlaying={isPlaying} onLoadPattern={loadCSVPattern} isLoadingPattern={isLoadingPattern} onClearLoadedPattern={clearLoadedPattern} hasLoadedPattern={!!loadedPatternInfo} />}
+          </div>
 
           {/* Bottom Toolbar */}
           <div className={cn(

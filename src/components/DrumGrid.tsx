@@ -21,6 +21,7 @@ interface DrumGridProps {
   isLoadingPattern?: boolean;
   onClearLoadedPattern?: () => void;
   hasLoadedPattern?: boolean;
+  isLandscape?: boolean;
 }
 const drumLabels: {
   [key: string]: {
@@ -131,7 +132,8 @@ export const DrumGrid = ({
   onLoadPattern,
   isLoadingPattern,
   onClearLoadedPattern,
-  hasLoadedPattern
+  hasLoadedPattern,
+  isLandscape = false
 }: DrumGridProps) => {
   // Calculate visible window based on scroll offset
   const maxStart = Math.max(0, pattern.length - visibleStepsCount);
@@ -141,10 +143,13 @@ export const DrumGrid = ({
 
   // Calculate playhead position within the current visible window
   const playheadIndex = Math.min(Math.max(currentStep - startStep, 0), Math.max(visibleSteps - 1, 0));
-  return <div className="space-y-6">
+  return <div className={cn("space-y-6", isLandscape && "h-full flex flex-col space-y-2")}>
       {/* Drum Grid Container */}
-      <div className="drum-grid-container">
-        <div className="relative bg-card rounded-lg p-3 sm:p-6 shadow-elevated overflow-hidden max-w-full">
+      <div className={cn("drum-grid-container", isLandscape && "flex-1 overflow-hidden")}>
+        <div className={cn(
+          "relative bg-card rounded-lg p-3 sm:p-6 shadow-elevated overflow-hidden max-w-full",
+          isLandscape && "h-full overflow-y-auto"
+        )}>
         {/* Step Position Indicator */}
         <div className="hidden text-xs text-muted-foreground text-center mb-2">
           Step {currentStep + 1} / {pattern.length}
@@ -162,20 +167,20 @@ export const DrumGrid = ({
           transform: 'none'
         }}>
           {/* Beat Numbers */}
-        <div className="flex mb-4 flex-col gap-1">
+        <div className={cn("flex mb-4 flex-col gap-1", isLandscape && "mb-2 gap-0.5")}>
           <div className="flex">
-            <div className="w-20 text-xs text-muted-foreground/50">Step#</div>
+            <div className={cn("w-20 text-xs text-muted-foreground/50", isLandscape && "w-16 text-[10px]")}>Step#</div>
             {Array.from({
                 length: visibleSteps
               }, (_, i) => {
                 const stepIndex = startStep + i;
-                return <div key={`step-${stepIndex}`} className="flex-1 min-w-[38px] text-center text-[10px] font-mono text-muted-foreground/40">
+                return <div key={`step-${stepIndex}`} className={cn("flex-1 min-w-[38px] text-center text-[10px] font-mono text-muted-foreground/40", isLandscape && "min-w-[32px] text-[8px]")}>
                   {stepIndex}
                 </div>;
               })}
           </div>
           <div className="flex">
-            <div className="w-20 text-xs text-muted-foreground/50">Count</div>
+            <div className={cn("w-20 text-xs text-muted-foreground/50", isLandscape && "w-16 text-[10px]")}>Count</div>
             {Array.from({
                 length: visibleSteps
               }, (_, i) => {
@@ -218,7 +223,7 @@ export const DrumGrid = ({
                     textStyle = "text-muted-foreground/70 font-medium";
                   }
                 }
-                return <div key={stepIndex} className={cn("flex-1 min-w-[38px] text-center text-sm font-mono", textStyle)}>
+                return <div key={stepIndex} className={cn("flex-1 min-w-[38px] text-center text-sm font-mono", textStyle, isLandscape && "min-w-[32px] text-xs")}>
                   {displayText}
                 </div>;
               })}
@@ -249,9 +254,9 @@ export const DrumGrid = ({
             };
             return <div key={drumKey} className="flex items-center group">
               {/* Drum Label */}
-              <div className="w-20 flex-shrink-0 flex items-center pr-4 gap-0">
-                <span className="text-lg font-mono text-accent w-4 flex-shrink-0 text-left">{drumInfo.symbol}</span>
-                <span className="text-foreground flex-1 truncate text-xs text-left font-normal">{drumInfo.name}</span>
+              <div className={cn("w-20 flex-shrink-0 flex items-center pr-4 gap-0", isLandscape && "w-16 pr-2")}>
+                <span className={cn("text-lg font-mono text-accent w-4 flex-shrink-0 text-left", isLandscape && "text-sm w-3")}>{drumInfo.symbol}</span>
+                <span className={cn("text-foreground flex-1 truncate text-xs text-left font-normal", isLandscape && "text-[10px]")}>{drumInfo.name}</span>
               </div>
 
               {/* Grid Line */}
@@ -265,8 +270,20 @@ export const DrumGrid = ({
                   }, (_, i) => {
                     const stepIndex = startStep + i;
                     const active = (steps as boolean[])[stepIndex];
-                    return <button key={stepIndex} onClick={() => onStepToggle(drumKey, stepIndex)} className={cn("flex-1 min-w-[38px] h-[38px] p-0 border-r border-grid-line last:border-r-0 transition-all duration-200", "flex items-center justify-center group-hover:bg-muted/20", stepIndex === currentStep && "bg-playhead/10", stepIndex % 2 === 0 && "border-r-2 border-primary/30")}>
-                        {active && <div className={cn("w-3 h-3 rounded-full bg-gradient-to-br from-note-active to-accent", "shadow-note transition-transform duration-200 hover:scale-110", "flex items-center justify-center text-[8px] font-bold text-background", stepIndex === currentStep && active && "animate-bounce")}>
+                    return <button key={stepIndex} onClick={() => onStepToggle(drumKey, stepIndex)} className={cn(
+                      "flex-1 min-w-[38px] h-[38px] p-0 border-r border-grid-line last:border-r-0 transition-all duration-200",
+                      "flex items-center justify-center group-hover:bg-muted/20",
+                      stepIndex === currentStep && "bg-playhead/10",
+                      stepIndex % 2 === 0 && "border-r-2 border-primary/30",
+                      isLandscape && "min-w-[32px] h-[28px]"
+                    )}>
+                        {active && <div className={cn(
+                          "w-3 h-3 rounded-full bg-gradient-to-br from-note-active to-accent",
+                          "shadow-note transition-transform duration-200 hover:scale-110",
+                          "flex items-center justify-center text-[8px] font-bold text-background",
+                          stepIndex === currentStep && active && "animate-bounce",
+                          isLandscape && "w-2.5 h-2.5 text-[6px]"
+                        )}>
                             {drumInfo.symbol}
                           </div>}
                       </button>;
