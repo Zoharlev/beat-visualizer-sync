@@ -1159,9 +1159,9 @@ export const DrumMachine = () => {
 
           {/* Toolbar */}
           <div className={cn(
-            "mb-4 transition-all duration-300",
+            "mb-4 transition-transform duration-300 ease-out",
             isLandscape && "fixed top-1 left-1 right-1 z-50 mb-0",
-            isLandscape && !showControls && "opacity-0 pointer-events-none -translate-y-full"
+            isLandscape && !showControls && "-translate-y-[calc(100%+8px)]"
           )}>
             <Toolbar
               songName="Sweet Child o Mine"
@@ -1184,9 +1184,9 @@ export const DrumMachine = () => {
 
           {/* Bottom Toolbar */}
           <div className={cn(
-            "mt-4 transition-all duration-300",
+            "mt-4 transition-transform duration-300 ease-out",
             isLandscape && "fixed bottom-1 left-1 right-1 z-50 mt-0",
-            isLandscape && !showControls && "opacity-0 pointer-events-none translate-y-full"
+            isLandscape && !showControls && "translate-y-[calc(100%+8px)]"
           )}>
             <BottomToolbar
               displayMode={displayMode}
